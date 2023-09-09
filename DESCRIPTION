@@ -1,0 +1,36 @@
+Package: mutmatch
+Title: Estimating Somatic Selection Using Neighbors Baseline or Low-Impact Mutations
+Version: 0.1.0
+Authors@R: 
+    person("Elizaveta", "Besedina", , "bio.besedina@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-8575-6688"))
+Description: Provides a suite of functions to estimate somatic selection for genes by utilizing 
+    the baseline mutation rates of neighboring genes or low-impact mutations within the same gene. 
+    Incorporates CADD score for low-impact mutation analysis.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Depends: 
+    R (>= 2.10)
+LazyData: true
+Imports: 
+    data.table,
+    magrittr,
+    dplyr,
+    rtracklayer,
+    GenomicRanges,
+    BSgenome.Hsapiens.UCSC.hg19,
+    BSgenome,
+    BiocIO,
+    Biostrings,
+    BiocGenerics,
+    S4Vectors,
+    IRanges,
+    GenomeInfoDb,
+    MASS,
+    pbapply,
+    plyr,
+    stringr,
+    fastglm,
+    arm
