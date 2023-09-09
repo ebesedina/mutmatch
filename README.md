@@ -57,10 +57,6 @@ genomewide_annotation = data.table::fread(system.file("extdata",
 
 ## License
 
-Certainly! You can update that section of the `README.md` to explicitly state that your package is under the MIT License and point to the `LICENSE.md` file for more details. Here's how you could update that section:
-
-## License
-
 This package is released under the MIT License. For more details, see the [`LICENSE.md`](LICENSE.md) file.
 
 
