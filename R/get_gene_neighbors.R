@@ -32,7 +32,7 @@ get_gene_neighbors <- function(grGene,
   right_targetGene_border <- end_gene + 1
 
   # Get genes with similar mutation rates as the target gene
-  genesSimMutRate <- get_similar_genes_rmd(hgnc=hgnc, outlierNeighborsThreshold = outlierNeighborsThreshold)
+  genesSimMutRate <- get_similar_genes_rmd(hgnc = hgnc, outlierNeighborsThreshold = outlierNeighborsThreshold)
 
   # Find neighboring genes on the left and right that have similar mutation rates
   left_genes <- get_genes_within_range(chromosome, leftBorder = leftmost_coordinate, rightBorder = left_targetGene_border) %>% base::intersect(genesSimMutRate)

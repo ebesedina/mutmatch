@@ -69,8 +69,8 @@ get_similar_genes_rmd <- function(hgnc, outlierNeighborsThreshold) {
   # Filter the data to find similar genes based on the outlierNeighborsThreshold and the specified gene (hgnc)
   genes_sim_rmd <- mutmatch_RmdGenesSimilarity %>%
     dplyr::filter((GeneName1 == hgnc | GeneName2 == hgnc) &
-                    abs(logOR) <= outlierNeighborsThreshold &
-                    GeneName1 != GeneName2) %>%
+      abs(logOR) <= outlierNeighborsThreshold &
+      GeneName1 != GeneName2) %>%
     dplyr::pull(GeneID2) %>%
     base::unique()
 

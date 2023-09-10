@@ -62,7 +62,7 @@ fit_selection_model <- function(mutation_table,
     message("Fitting the model in the real data")
     estimates_original <- lapply(model_cohorts, function(cohort) {
       mutation_table_cohort <- mutation_table[Cohort == cohort]
-      estimates_original_cohort = fit_glm(data = mutation_table_cohort, formula = formula)
+      estimates_original_cohort <- fit_glm(data = mutation_table_cohort, formula = formula)
       estimates_original_cohort[, Cohort := cohort]
       estimates_original_cohort
     }) %>% data.table::rbindlist()
@@ -72,7 +72,7 @@ fit_selection_model <- function(mutation_table,
     estimates_simulated <- lapply(model_cohorts, function(cohort) {
       pbapply::pblapply(1:simtimes, function(i) {
         mutation_table_shuffled_i <- mutation_table_shuffled[Cohort == cohort & permutation_id == i, ]
-        estimates_simulated_cohort = fit_glm(data = mutation_table_shuffled_i, formula = formula)
+        estimates_simulated_cohort <- fit_glm(data = mutation_table_shuffled_i, formula = formula)
         estimates_simulated_cohort[, Cohort := cohort]
         estimates_simulated_cohort
       }) %>% data.table::rbindlist()
