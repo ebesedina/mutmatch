@@ -4,6 +4,4 @@
 .httr-oauth
 .DS_Store
 .quarto
-/data/*
-/inst/extdata/*
 mutmatch.Rproj
