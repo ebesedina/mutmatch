@@ -75,7 +75,7 @@ filter_ranges <- function(grObject,
   }
 
   # Union to merge overlapping or duplicate ranges
-  grObject <- GenomicRanges::union(grObject, grObject)
+  grObject <- GenomicRanges::reduce(grObject)
 
   return(grObject)
 }

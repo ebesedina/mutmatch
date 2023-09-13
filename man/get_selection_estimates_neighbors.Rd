@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_selection_estimates_neighbors.R
 \name{get_selection_estimates_neighbors}
 \alias{get_selection_estimates_neighbors}
-\title{Estimate Selection Forces on Neighboring Genes}
+\title{Estimate Selection Pressures on a Target Gene Using Neighboring Genes as a Mutational Rate Baseline}
 \usage{
 get_selection_estimates_neighbors(
   hgnc,
@@ -53,9 +53,11 @@ estimates. Defaults to 50.}
 A data.table containing the debiased selection estimates, including estimated coefficients and their uncertainties.
 }
 \description{
-This function performs a two-step analysis to estimate the selection pressures acting on a given target gene and its neighboring genes.
-The function first identifies neighboring genes within a specified genomic window and filters them based on a mutation rate similarity threshold.
-Then, it fits a Bayesian Poisson regression model to calculate the debiased selection estimates.
+Performs a comprehensive two-stage analysis to quantify the selection forces acting upon a specified target gene.
+In the first stage, the function identifies and filters neighboring genes within a user-defined genomic window based on their
+mutation rate similarity.
+In the second stage, a Bayesian Poisson regression model is employed to derive selection estimates for the target gene.
+These estimates are subsequently refined through permutation-based debiasing.
 }
 \examples{
 \dontrun{
@@ -71,9 +73,7 @@ selection_estimates <- get_selection_estimates_neighbors(
   annotationGenomeWidePath = system.file("extdata",
     "example_genomewide_annotation.csv",
     package = "mutmatch"
-  ),
-  neighborsWindow = "0.5Mb",
-  outlierNeighborsThreshold = 0.2
+  )
 )
 }
 }
