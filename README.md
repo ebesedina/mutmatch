@@ -21,21 +21,62 @@ devtools::install_github("ebesedina/mutmatch")
 
 ## Usage
 
-Here is a simple example:
+### Estimating Selection Using Neighboring Genes
+
+The following example demonstrates how to estimate selection using neighboring genes as a neutral mutational rate baseline for the `KRAS` gene:
 
 ```R
+# Load the mutmatch library
 library(mutmatch)
 
+# Execute the function to get selection estimates using neighboring genes
 selection_estimates <- get_selection_estimates_neighbors(
-hgnc = "KRAS",
-mutationsPath = system.file("extdata",
-"example_mutations.csv.gz", package = "mutmatch"),
-annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz",
-package = "mutmatch"),
-annotationGenomeWidePath = system.file("extdata",
-"example_genomewide_annotation.csv", package = "mutmatch"),
-neighborsWindow = "0.5Mb",
-outlierNeighborsThreshold = 0.2
+  hgnc = "KRAS",
+  mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
+  annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
+  annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv", package = "mutmatch"),
+  neighborsWindow = "0.5Mb",
+  outlierNeighborsThreshold = 0.2
+)
+```
+
+### Estimating Selection Using Low-CADD Regions
+
+#### Step 1: Download CADD Scores
+
+First, download the Combined Annotation-Dependent Depletion (CADD) scores. Note that these scores are not included in the package due to their large file size.
+
+##### For UNIX-like Systems (Linux, macOS)
+
+Replace `"your/destination/path/CADD_GRCh37-v1.4.bw"` with the path where you want to save the file.
+
+```R
+# Load the mutmatch library
+library(mutmatch)
+
+# Specify the path to store the CADD file
+caddScoresPath = "your/destination/path/CADD_GRCh37-v1.4.bw"
+
+# Download the CADD file
+download_cadd_file(caddScoresPath = caddScoresPath)
+```
+
+##### For Windows Systems
+
+For Windows machines, download the CADD scores directly from [this link](https://krishna.gs.washington.edu/download/CADD/bigWig/CADD_GRCh37-v1.4.bw).
+
+#### Step 2: Run the Command
+
+After obtaining the CADD scores, execute the following command to estimate selection using low-CADD regions as a neutral mutational rate baseline.
+
+```R
+# Execute the function to get selection estimates using low-CADD regions
+selection_estimates <- get_selection_estimates_cadd(
+  hgnc = "KRAS",
+  caddScoresPath = caddScoresPath,
+  mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
+  annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
+  annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv", package = "mutmatch")
 )
 ```
 
