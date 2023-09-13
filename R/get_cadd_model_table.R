@@ -16,7 +16,8 @@
 #' @examples
 #' \dontrun{
 #' # Example usage
-#' mutation_table <- get_cadd_model_table(hgnc = "BRCA1", caddScoresPath = "path/to/CADD_scores.bw", ...)
+#' mutation_table <- get_cadd_model_table(hgnc = "BRCA1",
+#' caddScoresPath = "path/to/CADD_scores.bw", ...)
 #' }
 #'
 #' @export
@@ -98,7 +99,7 @@ get_cadd_model_table <- function(hgnc,
   mutation_table <- rbind(targetMutationTable, baselineMutationTable)
 
   # Relevel factors in the isTarget column
-  mutation_table$isTarget <- relevel(mutation_table$isTarget, ref = "0")
+  mutation_table$isTarget <- stats::relevel(mutation_table$isTarget, ref = "0")
 
   return(mutation_table)
 }

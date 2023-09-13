@@ -34,5 +34,5 @@ Imports:
     rtracklayer,
     GenomeInfoDb,
     BSgenome,
-    BSgenome.Hsapiens.UCSC.hg19
-
+    BSgenome.Hsapiens.UCSC.hg19,
+    rlang

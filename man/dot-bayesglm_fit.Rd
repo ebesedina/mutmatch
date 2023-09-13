@@ -8,7 +8,7 @@
   x,
   y,
   weights = rep(1, NROW(y)),
-  family = gaussian(),
+  family = stats::gaussian(),
   offset = rep(0, NROW(y)),
   start = NULL,
   mustart = NULL,

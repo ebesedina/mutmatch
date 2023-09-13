@@ -63,7 +63,7 @@ get_mutations_table <- function(grObject, grMutations, annotation = NULL) {
   mutationsData[, (strat_features) := base::lapply(.SD, function(x) {
     x_factor <- as.factor(x)
     if ("0" %in% levels(x_factor)) {
-      x_factor <- relevel(x_factor, ref = "0")
+      x_factor <- stats::relevel(x_factor, ref = "0")
     }
     return(x_factor)
   }), .SDcols = strat_features]

@@ -30,7 +30,7 @@ debias_selection_estimates <- function(estimates_original, estimates_simulated) 
     # Summarize the distribution of simulated coefficients by taking the median
     estimates_simulated <- estimates_simulated %>%
       dplyr::group_by(coefName) %>%
-      dplyr::summarise(coef_sim_median = median(coef)) %>%
+      dplyr::summarise(coef_sim_median = stats::median(coef)) %>%
       data.table::data.table()
 
     # Merge the original and simulated estimates based on coefficient names
@@ -39,7 +39,7 @@ debias_selection_estimates <- function(estimates_original, estimates_simulated) 
     # Summarize the distribution of simulated coefficients by taking the median
     estimates_simulated <- estimates_simulated %>%
       dplyr::group_by(coefName, Cohort) %>%
-      dplyr::summarise(coef_sim_median = median(coef)) %>%
+      dplyr::summarise(coef_sim_median = stats::median(coef)) %>%
       data.table::data.table()
 
     # Merge the original and simulated estimates based on coefficient names

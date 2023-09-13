@@ -12,7 +12,7 @@
 .fastglm_fit <- function(x,
                          y,
                          weights = rep(1, NROW(y)),
-                         family = gaussian(),
+                         family = stats::gaussian(),
                          offset = rep(0, NROW(y)),
                          start = NULL,
                          mustart = NULL,
@@ -48,7 +48,7 @@
 .bayesglm_fit <- function(x,
                           y,
                           weights = rep(1, NROW(y)),
-                          family = gaussian(),
+                          family = stats::gaussian(),
                           offset = rep(0, NROW(y)),
                           start = NULL,
                           mustart = NULL,
@@ -90,7 +90,7 @@ fit_glm <- function(formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + 
   family <- base::match.arg(family)
 
   # Convert formula to formula object
-  formula <- as.formula(formula)
+  formula <- stats::as.formula(formula)
 
   # Try fitting the model using tryCatch to handle errors
   glm_model <- tryCatch(
@@ -98,16 +98,16 @@ fit_glm <- function(formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + 
       if (family == "bayes.poisson") {
         arm::bayesglm(formula,
           data = data,
-          family = poisson(link = "log"),
-          control = glm.control(maxit = 100),
+          family = stats::poisson(link = "log"),
+          control = stats::glm.control(maxit = 100),
           prior.scale = 1
         ) %>% invisible()
       } else if (family == "poisson") {
-        mm <- model.matrix(formula, data = data)
+        mm <- stats::model.matrix(formula, data = data)
         fastglm::fastglm(
           x = mm,
           y = data[["MutationNumber"]],
-          family = poisson(link = "log"),
+          family = stats::poisson(link = "log"),
           data = data,
           maxit = 100,
           method = 2L
@@ -120,7 +120,7 @@ fit_glm <- function(formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + 
       } else if (family == "negative.binomial") {
         MASS::glm.nb(formula,
           data = data,
-          control = glm.control(maxit = 100),
+          control = stats::glm.control(maxit = 100),
           method = ".fastglm_fit"
         ) %>% invisible()
       }
@@ -155,9 +155,9 @@ fit_glm <- function(formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + 
     aZ.Value <- coefs[, 3L]
     aPval <- coefs[, 4L]
     if (colnames(coefs)[3L] == "t value") {
-      aupperTailPval <- pt(coefs[, 3L], df = glm_model$df.residual, lower.tail = FALSE)
+      aupperTailPval <- stats::pt(coefs[, 3L], df = glm_model$df.residual, lower.tail = FALSE)
     } else {
-      aupperTailPval <- pnorm(coefs[, 3L], lower.tail = FALSE)
+      aupperTailPval <- stats::pnorm(coefs[, 3L], lower.tail = FALSE)
     }
     alowerTailPval <- 1 - aupperTailPval
 

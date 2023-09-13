@@ -102,6 +102,6 @@ get_neighbors_model_table <- function(hgnc,
   mutation_table <- rbind(targetGeneMutationTable, neighborsMutationTable)
 
   # Relevel factors in the isTarget column
-  mutation_table$isTarget <- relevel(mutation_table$isTarget, ref = "0")
+  mutation_table$isTarget <- stats::relevel(mutation_table$isTarget, ref = "0")
   return(mutation_table)
 }

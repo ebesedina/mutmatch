@@ -46,7 +46,8 @@ It also performs filtering based on regions.
 \examples{
 \dontrun{
 # Example usage
-mutation_table <- get_cadd_model_table(hgnc = "BRCA1", caddScoresPath = "path/to/CADD_scores.bw", ...)
+mutation_table <- get_cadd_model_table(hgnc = "BRCA1",
+caddScoresPath = "path/to/CADD_scores.bw", ...)
 }
 
 }
