@@ -40,11 +40,11 @@ fit_selection_model <- function(mutation_table,
   # If there are no model-specific cohorts
   if (length(model_cohorts_vars) == 0) {
     # Fit the model on the real data
-    message("Fitting the model in the real data")
+    message("Performing model fitting on real data")
     estimates_original <- fit_glm(data = mutation_table, formula = formula, family = family)
 
     # Fit the model on the simulated data
-    message("Fitting the model in the simulated data")
+    message("Performing model fitting on simulated data")
     estimates_simulated <- pbapply::pblapply(1:simtimes, function(i) {
       fit_glm(data = mutation_table_shuffled[permutation_id == i, ], formula = formula)
     }) %>% data.table::rbindlist()
@@ -59,8 +59,8 @@ fit_selection_model <- function(mutation_table,
     model_cohorts <- unique(mutation_table$Cohort)
 
     # Fit the model on the real data for each cohort
-    message("Fitting the model in the real data")
-    estimates_original <- lapply(model_cohorts, function(cohort) {
+    message("Performing model fitting on real data for each cohort")
+    estimates_original <- pbapply::pblapply(model_cohorts, function(cohort) {
       mutation_table_cohort <- mutation_table[Cohort == cohort]
       estimates_original_cohort <- fit_glm(data = mutation_table_cohort, formula = formula)
       estimates_original_cohort[, Cohort := cohort]
@@ -68,15 +68,20 @@ fit_selection_model <- function(mutation_table,
     }) %>% data.table::rbindlist()
 
     # Fit the model on the simulated data for each cohort
-    message("Fitting the model in the simulated data")
-    estimates_simulated <- lapply(model_cohorts, function(cohort) {
-      pbapply::pblapply(1:simtimes, function(i) {
-        mutation_table_shuffled_i <- mutation_table_shuffled[Cohort == cohort & permutation_id == i, ]
-        estimates_simulated_cohort <- fit_glm(data = mutation_table_shuffled_i, formula = formula)
-        estimates_simulated_cohort[, Cohort := cohort]
-        estimates_simulated_cohort
-      }) %>% data.table::rbindlist()
-    }) %>% data.table::rbindlist()
+    message("Performing model fitting on simulated data for each cohort")
+    # Create a data frame of all combinations of cohorts and simtimes
+    combinations <- data.table::CJ(Cohort = model_cohorts, Simtime = 1:simtimes)
+
+    # Loop through each row of combinations using pblapply
+    estimates_simulated <- pbapply::pblapply(seq_len(nrow(combinations)), function(index) {
+      cohort <- combinations$Cohort[index]
+      i <- combinations$Simtime[index]
+      mutation_table_shuffled_i <- mutation_table_shuffled[Cohort == cohort &
+                                                             permutation_id == i, ]
+      estimates_simulated_cohort <- fit_glm(data = mutation_table_shuffled_i, formula = formula)
+      estimates_simulated_cohort[, Cohort := cohort]
+      return(estimates_simulated_cohort)
+    })  %>% data.table::rbindlist()
 
     # Correct the estimates
     message("Correcting selection estimates using simulated data")
