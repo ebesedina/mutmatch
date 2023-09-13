@@ -26,12 +26,13 @@ Imports:
     stringr,
     fastglm,
     arm,
-    IRanges,
-    S4Vectors,
-    BiocGenerics,
-    GenomeInfoDb,
-    GenomicRanges,
     Biostrings,
     rtracklayer,
     BSgenome,
     BSgenome.Hsapiens.UCSC.hg19
+Depends: 
+    IRanges,
+    S4Vectors,
+    GenomicRanges,
+    BiocGenerics,
+    GenomeInfoDb
