@@ -5,3 +5,5 @@
 .DS_Store
 .quarto
 mutmatch.Rproj
+inst/extdata/CADD_GRCh37-v1.4.bw
+inst/extdata/CADD_GRCh37-v1.6.bw
