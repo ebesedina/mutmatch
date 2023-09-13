@@ -38,7 +38,7 @@ get_cadd_model_table <- function(hgnc,
   grTargetGene <- make_ranges_from_table(geneData, exonsCoordinates = TRUE)
 
   # Import CADD data
-  CADD_local <- BiocIO::import(con = caddScoresPath, which = grTargetGene) %>% suppressWarnings()
+  CADD_local <- rtracklayer::import(con = caddScoresPath, which = grTargetGene) %>% suppressWarnings()
 
   # Define CADD score threshold
   threshold_constr <- 20

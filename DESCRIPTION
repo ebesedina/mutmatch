@@ -29,7 +29,6 @@ Imports:
     IRanges,
     S4Vectors,
     BiocGenerics,
-    BiocIO,
     GenomeInfoDb,
     GenomicRanges,
     Biostrings,

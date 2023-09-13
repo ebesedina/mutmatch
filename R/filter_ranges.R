@@ -39,12 +39,12 @@ filter_ranges <- function(grObject,
 
   # Import and apply low mappability filter
   CRG_mappability_path <- system.file("extdata", "wgEncodeCrgMapabilityAlign75merMask.bed.gz", package = "mutmatch")
-  CRG_mappability <- BiocIO::import(con = CRG_mappability_path, which = grObject, format = "bed")
+  CRG_mappability <- rtracklayer::import(con = CRG_mappability_path, which = grObject, format = "bed")
   grObject <- GenomicRanges::intersect(grObject, CRG_mappability, ignore.strand = TRUE)
 
   # Import and apply conversion-unstable positions filter
   CUP_path <- system.file("extdata", "FASTA_BED.ALL_GRCh37.novel_CUPs.bed.gz", package = "mutmatch")
-  CUP <- BiocIO::import(con = CUP_path, which = grObject, format = "bed")
+  CUP <- rtracklayer::import(con = CUP_path, which = grObject, format = "bed")
   grObject <- GenomicRanges::setdiff(grObject, CUP, ignore.strand = TRUE)
 
   # Initialize variable for additional regions
@@ -55,7 +55,7 @@ filter_ranges <- function(grObject,
     if (format == "Rdata") {
       regions_mask <- base::readRDS(file = filterRegionsPath)
     } else if (format == "bed") {
-      regions_mask <- BiocIO::import(con = filterRegionsPath, format = "bed")
+      regions_mask <- rtracklayer::import(con = filterRegionsPath, format = "bed")
     } else if (format == "NA") {
       message("No additional filtering is applied as format is set to 'NA'.")
     } else {
