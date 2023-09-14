@@ -12,7 +12,12 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Depends: 
-    R (>= 3.5.0)
+    R (>= 3.5.0),
+    IRanges,
+    S4Vectors,
+    GenomicRanges,
+    BiocGenerics,
+    GenomeInfoDb
 LazyData: true
 biocViews:
 Imports: 
@@ -30,9 +35,4 @@ Imports:
     rtracklayer,
     BSgenome,
     BSgenome.Hsapiens.UCSC.hg19
-Depends: 
-    IRanges,
-    S4Vectors,
-    GenomicRanges,
-    BiocGenerics,
-    GenomeInfoDb
+    
