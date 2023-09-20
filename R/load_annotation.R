@@ -26,19 +26,7 @@ load_annotation <- function(annotationGenomeWidePath,
   }
   if (!base::is.null(annotationGenePath)) {
     # Retrieve possible secondary names for the gene of interest
-    aliases <- mutmatch_geneAliases %>%
-      dplyr::filter_all(dplyr::any_vars(stringr::str_detect(., hgnc)))
-    if (base::nrow(aliases) == 1) {
-      gene_names <- c(
-        hgnc,
-        base::strsplit(aliases$"Approved symbol", ", ")[[1]],
-        base::strsplit(aliases$"Previous symbols", ", ")[[1]]
-      ) %>%
-        stringr::str_trim() %>%
-        base::unique()
-    } else {
-      gene_names <- hgnc
-    }
+    gene_names <- check_gene_aliases(hgnc = hgnc, approved = FALSE)
 
     # Get only rows with gene name in it
     sample_annotation_gene <- data.table::fread(cmd = base::paste(
