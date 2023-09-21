@@ -15,10 +15,14 @@
 #' @examples
 #' \dontrun{
 #' grSNVs <- load_mutations(mutationsPath = "example_mutations.csv.gz")
-#' grSNVs_chr1 <- load_mutations(mutationsPath = "example_mutations.csv.gz",
-#' chr = "1")
+#' grSNVs_chr1 <- load_mutations(
+#'   mutationsPath = "example_mutations.csv.gz",
+#'   chr = "1"
+#' )
 #' grSNVs_chr1 <- load_mutations(mutationsPath = system.file("extdata",
-#' "example_mutations.csv.gz", package = "mutmatch"), chr = "1")
+#'   "example_mutations.csv.gz",
+#'   package = "mutmatch"
+#' ), chr = "1")
 #' }
 load_mutations <- function(mutationsPath,
                            chr = NULL) {

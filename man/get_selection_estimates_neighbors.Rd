@@ -46,8 +46,7 @@ neighboring genes and the central gene. Genes exceeding this threshold will be f
 
 \item{family}{The family for the generalized linear model ("bayes.poisson", "poisson", "negative.binomial", "bayes.negative.binomial"). Defaults to "bayes.poisson".}
 
-\item{simtimes}{The number of times to simulate the data for correction of selection
-estimates. Defaults to 50.}
+\item{simtimes}{The number of times for bias correction. Defaults to 50.}
 }
 \value{
 A data.table containing the debiased selection estimates, including estimated coefficients and their uncertainties.
@@ -68,7 +67,7 @@ selection_estimates <- get_selection_estimates_neighbors(
     package = "mutmatch"
   ),
   annotationGenePath = system.file("extdata",
-  "example_gene_annotation.csv.gz",
+    "example_gene_annotation.csv.gz",
     package = "mutmatch"
   ),
   annotationGenomeWidePath = system.file("extdata",

@@ -20,7 +20,7 @@
 #'     package = "mutmatch"
 #'   ),
 #'   annotationGenePath = system.file("extdata",
-#'   "example_gene_annotation.csv.gz",
+#'     "example_gene_annotation.csv.gz",
 #'     package = "mutmatch"
 #'   ),
 #'   annotationGenomeWidePath = system.file("extdata",

@@ -4,7 +4,7 @@
 #' In the first stage, the function separates gene regions with low-CADD and high-CADD scores.
 #' In the second stage, a Bayesian Poisson regression model is employed to derive selection estimates for the target gene.
 #' These estimates are subsequently refined through permutation-based debiasing.
-
+#'
 #' @inheritParams get_cadd_model_table
 #' @inheritParams fit_selection_model
 #'
@@ -13,9 +13,9 @@
 #' @examples
 #' \dontrun{
 #' # Replace "your/destination/path/CADD_GRCh37-v1.4.bw" with the path where
-#' you want to save the file.
+#' # you want to save the file.
 #'
-#' caddScoresPath = "your/destination/path/CADD_GRCh37-v1.4.bw"
+#' caddScoresPath <- "your/destination/path/CADD_GRCh37-v1.4.bw"
 #' download_cadd_file(caddScoresPath = caddScoresPath)
 #'
 #' selection_estimates <- get_selection_estimates_cadd(
@@ -26,7 +26,7 @@
 #'     package = "mutmatch"
 #'   ),
 #'   annotationGenePath = system.file("extdata",
-#'   "example_gene_annotation.csv.gz",
+#'     "example_gene_annotation.csv.gz",
 #'     package = "mutmatch"
 #'   ),
 #'   annotationGenomeWidePath = system.file("extdata",

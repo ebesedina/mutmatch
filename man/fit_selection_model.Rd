@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_selection_model.R
 \name{fit_selection_model}
 \alias{fit_selection_model}
-\title{Fit a selection model and debias its estimates}
+\title{Fit Selection Model and Debias Its Estimates}
 \usage{
 fit_selection_model(
   mutation_table,
@@ -23,15 +23,16 @@ these covariates to fit individual models for each subset.}
 
 \item{family}{The family for the generalized linear model ("bayes.poisson", "poisson", "negative.binomial", "bayes.negative.binomial"). Defaults to "bayes.poisson".}
 
-\item{simtimes}{The number of times to simulate the data for correction of selection
-estimates. Defaults to 50.}
+\item{simtimes}{The number of times for bias correction. Defaults to 50.}
 }
 \value{
 A data.table containing corrected estimates.
 }
 \description{
-This function fits a selection model to given mutation data using a specified formula.
-The function first simulates the data using a neutral selection model and then fits
-the specified model to both the original and simulated data. It corrects the estimates
-for selection using the simulated data as a reference.
+This function fits a selection model to provided mutation data based on a user-defined formula.
+The process involves an initial simulation of the data under a neutral selection model.
+Following this, the chosen model is applied to both the real and simulated datasets.
+The output estimates are then corrected using the simulated data as a reference.
+Additionally, the function aggregates and provides the total number of mutations
+for both tested and controlled regions across distinct cohorts.
 }

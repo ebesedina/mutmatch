@@ -43,8 +43,7 @@ The default version (CADD_GRCh37-v1.4.bw) can be downloaded using the function \
 
 \item{family}{The family for the generalized linear model ("bayes.poisson", "poisson", "negative.binomial", "bayes.negative.binomial"). Defaults to "bayes.poisson".}
 
-\item{simtimes}{The number of times to simulate the data for correction of selection
-estimates. Defaults to 50.}
+\item{simtimes}{The number of times for bias correction. Defaults to 50.}
 }
 \value{
 A data.table containing the debiased selection estimates, including estimated coefficients and their uncertainties.
@@ -58,9 +57,9 @@ These estimates are subsequently refined through permutation-based debiasing.
 \examples{
 \dontrun{
 # Replace "your/destination/path/CADD_GRCh37-v1.4.bw" with the path where
-you want to save the file.
+# you want to save the file.
 
-caddScoresPath = "your/destination/path/CADD_GRCh37-v1.4.bw"
+caddScoresPath <- "your/destination/path/CADD_GRCh37-v1.4.bw"
 download_cadd_file(caddScoresPath = caddScoresPath)
 
 selection_estimates <- get_selection_estimates_cadd(
@@ -71,7 +70,7 @@ selection_estimates <- get_selection_estimates_cadd(
     package = "mutmatch"
   ),
   annotationGenePath = system.file("extdata",
-  "example_gene_annotation.csv.gz",
+    "example_gene_annotation.csv.gz",
     package = "mutmatch"
   ),
   annotationGenomeWidePath = system.file("extdata",
