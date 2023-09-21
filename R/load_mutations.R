@@ -14,10 +14,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' grSNVs <- load_mutations(mutationsPath = "example_mutations.csv.gz")
-#' grSNVs_chr1 <- load_mutations(
-#'   mutationsPath = "example_mutations.csv.gz",
-#'   chr = "1"
+#' grSNVs <- load_mutations(mutationsPath = system.file("extdata",
+#'   "example_mutations.csv.gz",
+#'   package = "mutmatch"
 #' )
 #' grSNVs_chr1 <- load_mutations(mutationsPath = system.file("extdata",
 #'   "example_mutations.csv.gz",
