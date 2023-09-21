@@ -4,7 +4,27 @@
 
 ## Installation
 
-You can install the development version of `mutmatch` from [GitHub](https://github.com/ebesedina/mutmatch) using:
+### Setting Up Conda Environment
+
+Before installing the package, it's recommended to set up an isolated conda environment to ensure compatibility and avoid conflicts with other packages.
+
+1. If you don't have `conda` or `mamba` installed, download and install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/products/distribution).
+
+2. Create a new conda environment using the provided `environment.yml`:
+
+```bash
+conda env create -f environment.yml
+```
+
+3. Activate the newly created conda environment:
+
+```bash
+conda activate mutmatch
+```
+
+### Installing mutmatch R package
+
+You can install `mutmatch` from [GitHub](https://github.com/ebesedina/mutmatch) using:
 
 ```R
 # If the devtools package is not installed, uncomment the following line:
