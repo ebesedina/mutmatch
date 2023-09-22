@@ -23,6 +23,7 @@
 #' grGenesData <- make_ranges_from_table(genesData)
 #' }
 #'
+#' @export
 make_ranges_from_table <- function(rangesData, exonsCoordinates = TRUE) {
   # Create GenomicRanges object from the input data frame
   if (!exonsCoordinates) {
