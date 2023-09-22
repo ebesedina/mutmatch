@@ -57,7 +57,7 @@ fit_selection_model <- function(mutation_table,
     # Add mutation counts per tested and controlled region
     mut_counts_total <- mutation_table[, .(MutationNumber = sum(MutationNumber)), by = .(isTarget)]
     mut_counts_total <- data.table::dcast(mut_counts_total, formula = ... ~ isTarget, value.var = "MutationNumber")
-    data.table::setnames(mut_counts_total, old = c("0", "1"), new = c("MutationNumber_control", "MutationNumber_tested"))
+    data.table::setnames(mut_counts_total, old = c("0", "1"), new = c("MutN_isTarget_control", "MutN_isTarget_tested"))
 
     # Remove the column named "."
     mut_counts_total[, "." := NULL]
@@ -99,9 +99,31 @@ fit_selection_model <- function(mutation_table,
     estimates_corrected <- debias_selection_estimates(estimates_original, estimates_simulated)
 
     # Add mutation counts per tested and controlled region
-    mut_counts_total <- mutation_table[, .(MutationNumber = sum(MutationNumber)), by = .(isTarget, Cohort)]
-    mut_counts_total <- data.table::dcast(mut_counts_total, formula = Cohort ~ isTarget, value.var = "MutationNumber")
-    data.table::setnames(mut_counts_total, old = c("0", "1"), new = c("MutationNumber_control", "MutationNumber_tested"))
+    mut_counts_total <- mutation_table[, .(MutationNumber = sum(MutationNumber)), by = eval(c(cohort_vars, "isTarget"))]
+    data.table::setDT(mut_counts_total)[, Cohort := do.call(paste, c(.SD, sep = "__")), .SDcols = model_cohorts_vars]
+    mut_counts_total[, (model_cohorts_vars) := NULL]
+    cols_sel_model <- c("isTarget", setdiff(cohort_vars, model_cohorts_vars))
+    mut_counts_total[, (cols_sel_model) := lapply(seq_along(.SD), function(idx) {
+      col_name <- names(.SD)[idx]
+      if (col_name == "isTarget") {
+        control_name <- paste0("MutN_", col_name, "_control")
+        test_name <- paste0("MutN_", col_name, "_test")
+      } else {
+        control_name <- paste0(col_name, "_control")
+        test_name <- paste0(col_name, "_test")
+      }
+      ifelse(.SD[[idx]] == 0, control_name, test_name)
+    }), .SDcols = cols_sel_model]
+    mut_counts_total <- data.table::dcast(mut_counts_total,
+      formula = as.formula(paste(
+        "Cohort ~",
+        paste(cols_sel_model,
+          collapse = "+"
+        )
+      )),
+      value.var = "MutationNumber", fill = 0
+    )
+
     estimates_corrected <- merge(estimates_corrected, mut_counts_total, by = "Cohort")
   }
 
