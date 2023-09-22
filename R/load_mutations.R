@@ -17,7 +17,8 @@
 #' grSNVs <- load_mutations(mutationsPath = system.file("extdata",
 #'   "example_mutations.csv.gz",
 #'   package = "mutmatch"
-#' )
+#' ))
+#'
 #' grSNVs_chr1 <- load_mutations(mutationsPath = system.file("extdata",
 #'   "example_mutations.csv.gz",
 #'   package = "mutmatch"

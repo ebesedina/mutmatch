@@ -26,7 +26,8 @@ Finally, it filters out any SNVs that don't meet specific length criteria for th
 grSNVs <- load_mutations(mutationsPath = system.file("extdata",
   "example_mutations.csv.gz",
   package = "mutmatch"
-)
+))
+
 grSNVs_chr1 <- load_mutations(mutationsPath = system.file("extdata",
   "example_mutations.csv.gz",
   package = "mutmatch"
