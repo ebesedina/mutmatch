@@ -9,7 +9,8 @@ remove_mismatched_samples(genes, annotationGenePath, referenceAnnotation)
 \arguments{
 \item{genes}{A vector of HGNC gene symbols to be used for filtering samples.}
 
-\item{annotationGenePath}{A path to the file with gene-specific annotation for each sample. Default is NULL.}
+\item{annotationGenePath}{A path to the file with gene-specific annotation for each sample.
+Can be 'sqlite' or 'db' if the file is produced with make_sql_gene_annotation function (recommended for large files). Default is NULL.}
 
 \item{referenceAnnotation}{Reference annotation from which mismatched samples have to be removed.}
 }

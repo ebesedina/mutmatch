@@ -25,7 +25,8 @@ get_selection_estimates_neighbors(
 
 \item{mutationsPath}{A path to the csv.gz file with mutations for each sample.}
 
-\item{annotationGenePath}{A path to the file with gene-specific annotation for each sample. Default is NULL.}
+\item{annotationGenePath}{A path to the file with gene-specific annotation for each sample.
+Can be 'sqlite' or 'db' if the file is produced with make_sql_gene_annotation function (recommended for large files). Default is NULL.}
 
 \item{annotationGenomeWidePath}{A path to the file with genome-wide annotation for each sample}
 
