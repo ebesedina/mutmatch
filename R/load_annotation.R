@@ -34,12 +34,11 @@ load_annotation <- function(annotationGenomeWidePath,
     if (file_extension %in% c("sqlite", "db")) {
       con <- DBI::dbConnect(RSQLite::SQLite(), dbname = annotationGenePath)
 
-      # Generate SQL pattern using LIKE and wildcards
-      query_pattern <- paste(gene_names, collapse = "%' OR Gene LIKE '")
-      query_pattern <- paste0("%", query_pattern, "%")
+      # Generate SQL pattern
+      query_pattern <- paste(gene_names, collapse = "' OR Gene = '")
 
       # Write SQL query to fetch matching rows based on the column name where genes are stored
-      query <- sprintf("SELECT * FROM sample_annotation_gene_data WHERE Gene LIKE '%s'", query_pattern)
+      query <- sprintf("SELECT * FROM sample_annotation_gene_data WHERE Gene = '%s'", query_pattern)
 
       # Execute the query and fetch the results
       sample_annotation_gene <- DBI::dbGetQuery(con, query) %>% data.table::data.table()
