@@ -13,7 +13,8 @@ load_annotation(
 \arguments{
 \item{annotationGenomeWidePath}{A path to the file with genome-wide annotation for each sample}
 
-\item{annotationGenePath}{A path to the file with gene-specific annotation for each sample. Default is NULL.}
+\item{annotationGenePath}{A path to the file with gene-specific annotation for each sample.
+Can be 'sqlite' or 'db' if the file is produced with make_sql_gene_annotation function (recommended for large files). Default is NULL.}
 
 \item{hgnc}{The HGNC symbol of the target gene in case a gene-specific annotation is used. Default is NULL.}
 }
