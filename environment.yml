@@ -37,7 +37,7 @@ dependencies:
   - bwidget=1.9.11=1
   - bzip2=1.0.8=h7b6447c_0
   - c-ares=1.19.1=h5eee18b_0
-  - ca-certificates=2023.08.22=h06a4308_0
+  - ca-certificates=2023.7.22=hbcca054_0
   - cairo=1.16.0=hb05425b_5
   - curl=7.88.1=hdbd6064_2
   - expat=2.5.0=h6a678d5_0
@@ -108,7 +108,10 @@ dependencies:
   - r-bh=1.78.0_0=r42h6115d3f_0
   - r-bigmemory=4.6.1=r42h884c59f_0
   - r-bigmemory.sri=0.1.3=r42h142f84f_0
+  - r-bit=4.0.5=r42h57805ef_1
+  - r-bit64=4.0.5=r42h57805ef_2
   - r-bitops=1.0_7=r42h76d94ec_0
+  - r-blob=1.2.4=r42hc72bb7e_1
   - r-boot=1.3_28=r42h6115d3f_0
   - r-brew=1.0_7=r42h6115d3f_0
   - r-brio=1.1.3=r42h76d94ec_0
@@ -128,6 +131,7 @@ dependencies:
   - r-credentials=1.3.2=r42h142f84f_0
   - r-curl=4.3.2=r42h76d94ec_0
   - r-data.table=1.14.8=r42h029312a_2
+  - r-dbi=1.1.3=r42hc72bb7e_2
   - r-desc=1.4.1=r42h6115d3f_0
   - r-devtools=2.4.5=r42hc72bb7e_2
   - r-diffobj=0.3.5=r42h76d94ec_0
@@ -195,6 +199,7 @@ dependencies:
   - r-pkgconfig=2.0.3=r42h6115d3f_0
   - r-pkgdown=2.0.7=r42hc72bb7e_1
   - r-pkgload=1.3.2.1=r42hc72bb7e_0
+  - r-plogr=0.2.0=r42hc72bb7e_1005
   - r-plyr=1.8.8=r42ha503ecb_1
   - r-png=0.1_7=r42h76d94ec_0
   - r-praise=1.0.0=r42h6115d3f_4
@@ -221,6 +226,7 @@ dependencies:
   - r-roxygen2=7.2.3=r42ha503ecb_1
   - r-rpart=4.1.16=r42h76d94ec_0
   - r-rprojroot=2.0.3=r42h6115d3f_0
+  - r-rsqlite=2.3.1=r42ha503ecb_1
   - r-rstudioapi=0.13=r42h6115d3f_0
   - r-rversions=2.1.1=r42h6115d3f_0
   - r-sass=0.4.1=r42h884c59f_0
