@@ -29,6 +29,8 @@ Imports:
     pbapply,
     plyr,
     stringr,
+    DBI,
+    RSQLite,
     fastglm,
     arm,
     Biostrings,
