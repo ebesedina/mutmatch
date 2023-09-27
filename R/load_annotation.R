@@ -46,7 +46,7 @@ load_annotation <- function(annotationGenomeWidePath,
       # Disconnect from the SQLite database
       DBI::dbDisconnect(con)
 
-      sample_annotation_gene <- sample_annotation_gene[Gene %in% gene_names][, -"Gene"] %>% unique()
+      sample_annotation_gene <- sample_annotation_gene[, -"Gene"] %>% unique()
     } else {
       # Get only rows with gene name in it
       sample_annotation_gene <- data.table::fread(cmd = base::paste(
