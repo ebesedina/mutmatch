@@ -209,6 +209,9 @@ dependencies:
   - r-promises=1.2.0.1=r42h884c59f_0
   - r-ps=1.7.0=r42h76d94ec_0
   - r-purrr=0.3.4=r42h76d94ec_0
+  - r-r.methodss3=1.8.2=r42hc72bb7e_2
+  - r-r.oo=1.25.0=r42hc72bb7e_2
+  - r-r.utils=2.12.2=r42hc72bb7e_1
   - r-r6=2.5.1=r42h6115d3f_0
   - r-ragg=1.2.2=r42h884c59f_0
   - r-rappdirs=0.3.3=r42h76d94ec_0
@@ -278,3 +281,4 @@ dependencies:
   - zipp=3.11.0=py311h06a4308_0
   - zlib=1.2.13=hd590300_5
   - zstd=1.5.5=hc292b87_0
+prefix: /home/ebesedina/miniconda3/envs/mutmatch
