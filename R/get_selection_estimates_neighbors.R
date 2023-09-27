@@ -41,7 +41,8 @@ get_selection_estimates_neighbors <- function(hgnc,
                                               outlierNeighborsThreshold = 0.2,
                                               formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + Mutation + offset(log(ntAtRisk))",
                                               family = "bayes.poisson",
-                                              simtimes = 50) {
+                                              simtimes = 50,
+                                              n_cores = 5) {
   # Get the data table for the regression model
   message("Retrieving mutation counts using neighbors baseline mutation model")
   mutation_table <- get_neighbors_model_table(

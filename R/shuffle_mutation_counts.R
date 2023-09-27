@@ -3,13 +3,6 @@
 #' This function takes a mutation table for a single cohort and returns a table with permuted mutation counts.
 #' The shuffling is done based on the marginal sums of mutations and ntAtRisk for each mutation type.
 #' The returned table will have a new column named 'permutation_id' to identify each permutation.
-#' This function is optimized for parallel processing. Before using, set a future plan
-#' with \code{\link[future]{plan}} to determine the parallel backend to use.
-#' For example, use \code{future::plan(future::multisession, workers = n_cores)}
-#' to use multicore or multisession processing with a specific number of cores.
-#'
-#' @seealso
-#' \code{\link[future]{plan}} for setting future plan for parallel processing.
 #'
 #' @param mutation_table A data.table containing mutation information. It should contain only one category (cohort)
 #' except for the 'isTarget' and 'Mutation' variables.
@@ -20,7 +13,6 @@
 #'
 #' @examples
 #' \dontrun{
-#' future::plan(future::multisession, workers = 4)
 #' shuffled_data <- shuffle_mutation_counts(mutation_table, ntimes = 100)
 #' }
 shuffle_mutation_counts <- function(mutation_table, ntimes = 50) {
@@ -44,52 +36,45 @@ shuffle_mutation_counts <- function(mutation_table, ntimes = 50) {
   data.table::setkey(mutation_table_marginal_sums, Mutation)
 
   # Perform the shuffling
-  mutation_table_permutated <- furrr::future_map(
-    .options = furrr::furrr_options(seed = 42,
-                                    packages = "data.table"),
-    .x = mutation_types_present,
-    .f = function(mutation_type) {
+  mutation_table_permutated <- lapply(mutation_types_present, function(mutation_type) {
+    original_table <- mutation_table[.(mutation_type)]
+    original_table <- original_table[order(isTarget)]
+    data.table::setkey(original_table)
 
+    if (!length(unique(original_table$isTarget)) == 2) {
+      permutated_table_n <- original_table[rep_len(
+        seq_len(nrow(original_table)),
+        nrow(original_table) * ntimes
+      )]
+      permutated_table_n[, permutation_id := rep(seq_len(ntimes), each = nrow(original_table))]
+    } else {
+      marginal_sums <- mutation_table_marginal_sums[.(mutation_type)]
+      marginal_sum_MutationNumber <- marginal_sums$MutationNumber
+      marginal_sum_ntAtRisk <- marginal_sums$ntAtRisk
 
-      original_table <- mutation_table[Mutation == mutation_type]
-      original_table <- original_table[order(isTarget)]
-      data.table::setkey(original_table)
+      central_gene_counts <- stats::rbinom(
+        n = ntimes,
+        size = marginal_sum_MutationNumber,
+        prob = original_table[isTarget == 1]$ntAtRisk / marginal_sum_ntAtRisk
+      )
 
-      if (!length(unique(original_table$isTarget)) == 2) {
-        permutated_table_n <- original_table[rep_len(
-          seq_len(nrow(original_table)),
-          nrow(original_table) * ntimes
-        )]
-        permutated_table_n[, permutation_id := rep(seq_len(ntimes), each = nrow(original_table))]
-      } else {
-        marginal_sums <- mutation_table_marginal_sums[Mutation == mutation_type]
-        marginal_sum_MutationNumber <- marginal_sums$MutationNumber
-        marginal_sum_ntAtRisk <- marginal_sums$ntAtRisk
+      # Get the number of rows in the original table, should be 2
+      num_rows_original <- nrow(original_table)
 
-        central_gene_counts <- stats::rbinom(
-          n = ntimes,
-          size = marginal_sum_MutationNumber,
-          prob = original_table[isTarget == 1]$ntAtRisk / marginal_sum_ntAtRisk
-        )
+      # Replicate the entire original_table ntimes
+      permutated_table_n <- original_table[rep(seq_len(.N), ntimes)]
 
-        # Get the number of rows in the original table, should be 2
-        num_rows_original <- nrow(original_table)
+      # Add a permutation ID
+      permutated_table_n[, permutation_id := rep(1:ntimes, each = num_rows_original)]
 
-        # Replicate the entire original_table ntimes
-        permutated_table_n <- original_table[rep(seq_len(.N), ntimes)]
-
-        # Add a permutation ID
-        permutated_table_n[, permutation_id := rep(1:ntimes, each = num_rows_original)]
-
-        # Update MutationNumber for isTarget == 1 and isTarget == 0
-        permutated_table_n[isTarget == 1, MutationNumber := central_gene_counts]
-        permutated_table_n[isTarget == 0, MutationNumber := marginal_sum_MutationNumber - central_gene_counts]
-      }
-
-      data.table::setcolorder(permutated_table_n, c(colnames(mutation_table), "permutation_id"))
-      return(permutated_table_n)
+      # Update MutationNumber for isTarget == 1 and isTarget == 0
+      permutated_table_n[isTarget == 1, MutationNumber := central_gene_counts]
+      permutated_table_n[isTarget == 0, MutationNumber := marginal_sum_MutationNumber - central_gene_counts]
     }
-  ) %>% data.table::rbindlist()
+
+    data.table::setcolorder(permutated_table_n, c(colnames(mutation_table), "permutation_id"))
+    return(permutated_table_n)
+  }) %>% data.table::rbindlist()
 
   # Convert 'isTarget' and 'Mutation' to factors
   mutation_table_permutated[, isTarget := as.factor(isTarget)]
