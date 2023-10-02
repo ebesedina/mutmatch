@@ -30,7 +30,7 @@ fit_selection_model <- function(mutation_table,
   # Shuffle mutation counts separately for each cohort
   data.table::setDT(mutation_table)[, Cohort := do.call(paste, c(.SD, sep = "__")), .SDcols = cohort_vars]
   cohort_ids <- unique(mutation_table$Cohort)
-  mutation_table_shuffled <- parallel::mclapply(cohort_ids, function(cohort_i) {
+  mutation_table_shuffled <- lapply(cohort_ids, function(cohort_i) {
     shuffle_mutation_counts(mutation_table[Cohort == cohort_i, -"Cohort", with = FALSE], ntimes = simtimes)
   }) %>% data.table::rbindlist()
 
