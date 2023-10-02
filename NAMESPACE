@@ -3,6 +3,7 @@
 export("%>%")
 export(calculate_trinucleotide_composition)
 export(check_gene_aliases)
+export(check_regression_data_integrity)
 export(convert_dna_length)
 export(debias_selection_estimates)
 export(download_cadd_file)
