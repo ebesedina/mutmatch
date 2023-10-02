@@ -21,15 +21,6 @@ fit_selection_model <- function(mutation_table,
                                 formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + Mutation + offset(log(ntAtRisk))",
                                 family = "bayes.poisson",
                                 simtimes = 50) {
-  # Check if isTarget has 2 levels
-  if (length(unique(mutation_table$isTarget)) < 2) {
-    if (unique(mutation_table$isTarget) == 1) {
-      stop("There is no DNA in the control region for isTarget variable, not able to fit the model")
-    } else {
-      stop("There is no DNA in the tested region for isTarget variable, not able to fit the model")
-    }
-  }
-
   # Message for tracking progress
   message("Simulating data using neutral selection model")
 
