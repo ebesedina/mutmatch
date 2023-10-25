@@ -17,8 +17,7 @@ get_selection_estimates_neighbors(
   formula =
     "MutationNumber ~ isTarget + CNA + isTarget:CNA + Mutation + offset(log(ntAtRisk))",
   family = "bayes.poisson",
-  simtimes = 50,
-  n_cores = 5
+  simtimes = 50
 )
 }
 \arguments{
