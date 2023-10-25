@@ -23,7 +23,7 @@ fit_selection_model <- function(mutation_table,
                                 simtimes = 50) {
 # Check if the model can be ran on the mutation table
   check_regression_data_integrity(mutation_table,
-                                  formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + Mutation + offset(log(ntAtRisk))")
+                                  formula = formula)
   # Message for tracking progress
   message("Simulating data using neutral selection model")
 
