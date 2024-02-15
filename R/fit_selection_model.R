@@ -130,7 +130,17 @@ fit_selection_model <- function(mutation_table,
         control_name <- paste0(col_name, "_control")
         test_name <- paste0(col_name, "_test")
       }
-      ifelse(.SD[[idx]] == 0, control_name, test_name)
+      if (is.factor(.SD[[idx]])) {
+        # Assuming the levels are sorted alphabetically by default
+        control_level <- levels(.SD[[idx]])[1]  # First level as control
+        # Check if there's more than one level to assign the second as test; otherwise, use the first level
+        test_level <- if(length(levels(.SD[[idx]])) > 1) levels(.SD[[idx]])[2] else control_level
+
+        result <- ifelse(as.character(.SD[[idx]]) == control_level, control_name, test_name)
+      } else {
+        result <- ifelse(.SD[[idx]] == 0, control_name, test_name)
+      }
+      return(result)
     }), .SDcols = cols_sel_model]
     mut_counts_total <- data.table::dcast(mut_counts_total,
       formula = as.formula(paste(
@@ -139,6 +149,7 @@ fit_selection_model <- function(mutation_table,
           collapse = "+"
         )
       )),
+      fun.aggregate = unique,
       value.var = "MutationNumber", fill = 0
     )
 
@@ -155,7 +166,17 @@ fit_selection_model <- function(mutation_table,
         control_name <- paste0(col_name, "_control")
         test_name <- paste0(col_name, "_test")
       }
-      ifelse(.SD[[idx]] == 0, control_name, test_name)
+      if (is.factor(.SD[[idx]])) {
+        # Assuming the levels are sorted alphabetically by default
+        control_level <- levels(.SD[[idx]])[1]  # First level as control
+        # Check if there's more than one level to assign the second as test; otherwise, use the first level
+        test_level <- if(length(levels(.SD[[idx]])) > 1) levels(.SD[[idx]])[2] else control_level
+
+        result <- ifelse(as.character(.SD[[idx]]) == control_level, control_name, test_name)
+      } else {
+        result <- ifelse(.SD[[idx]] == 0, control_name, test_name)
+      }
+      return(result)
     }), .SDcols = cols_sel_model]
     nts_counts_total <- data.table::dcast(nts_counts_total,
                                           formula = as.formula(paste(
@@ -164,6 +185,7 @@ fit_selection_model <- function(mutation_table,
                                                   collapse = "+"
                                             )
                                           )),
+                                          fun.aggregate = unique,
                                           value.var = "ntAtRisk", fill = 0
     )
 
