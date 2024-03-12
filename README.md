@@ -115,6 +115,11 @@ For example:
 genomewide_annotation = data.table::fread(system.file("extdata", 
 "example_genomewide_annotation.csv", package = "mutmatch"))
 ```
+## Postprocessing
+
+The MutMatch estimates of overall selection and conditional selection, along with their corresponding p-values, can exhibit distributional inaccuracies when derived from sparse datasets. To mitigate this, the `fit_selection_model` function employs a postprocessing technique. This technique involves simulating a null distribution of selection estimates under the assumption of neutral selection. It then adjusts the actual selection estimate by subtracting the median of this simulated null distribution. 
+
+To address potential biases in p-value estimates due to sparse data, we implemented an additional step with the `post_process_pvalues` function. This function corrects p-values by comparing them against a distribution of p-values obtained from randomized data. By mapping the actual p-values to their corresponding quantiles within this simulated distribution, the process effectively adjusts for any deflation or inflation present in the original p-values. This debiasing technique enhances the accuracy and statistical reliability of p-value estimates in selection analysis. For optimal results, applying this function across a wide range of genes is advised, leveraging the comprehensive dataset of simulated null distribution p-values to refine resolution.
 
 ## License
 

@@ -11,7 +11,8 @@
 #' @examples
 #' \dontrun{
 #' make_sql_gene_annotation(
-#'   annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
+#'   annotationGenePath = system.file("extdata",
+#'   "example_gene_annotation.csv.gz", package = "mutmatch"),
 #'   annotationGenePathSQL = "/path/to/example_gene_annotation.sqlite"
 #' )
 #' }
