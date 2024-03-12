@@ -21,9 +21,10 @@ fit_selection_model <- function(mutation_table,
                                 formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + Mutation + offset(log(ntAtRisk))",
                                 family = "bayes.poisson",
                                 simtimes = 50) {
-# Check if the model can be ran on the mutation table
+  # Check if the model can be ran on the mutation table
   check_regression_data_integrity(mutation_table,
-                                  formula = formula)
+    formula = formula
+  )
   # Message for tracking progress
   message("Simulating data using neutral selection model")
 
@@ -68,8 +69,7 @@ fit_selection_model <- function(mutation_table,
     estimates_corrected <- cbind(estimates_corrected, mut_counts_total)
 
     # Add nucleotides at risk counts per tested and controlled region; each nucleotide is counted 3 times because of 3 mutation types
-    nts_counts_total <- mutation_table[, .(ntAtRisk = sum(ntAtRisk)/3
-    ), by = .(isTarget)]
+    nts_counts_total <- mutation_table[, .(ntAtRisk = sum(ntAtRisk) / 3), by = .(isTarget)]
     nts_counts_total <- data.table::dcast(nts_counts_total, formula = ... ~ isTarget, value.var = "ntAtRisk")
     data.table::setnames(nts_counts_total, old = c("0", "1"), new = c("NtN_isTarget_control", "NtN_isTarget_tested"))
 
@@ -113,14 +113,16 @@ fit_selection_model <- function(mutation_table,
     estimates_corrected <- debias_selection_estimates(estimates_original, estimates_simulated)
 
     # Add mutation and nucluotides at risk counts per tested and controlled region; each nucleotide is counted 3 times because of 3 mutation types
-    all_counts_total <- mutation_table[, .(MutationNumber = sum(MutationNumber),
-                                           ntAtRisk = sum(ntAtRisk)/3), by = eval(c(cohort_vars, "isTarget"))]
+    all_counts_total <- mutation_table[, .(
+      MutationNumber = sum(MutationNumber),
+      ntAtRisk = sum(ntAtRisk) / 3
+    ), by = eval(c(cohort_vars, "isTarget"))]
     data.table::setDT(all_counts_total)[, Cohort := do.call(paste, c(.SD, sep = "__")), .SDcols = model_cohorts_vars]
     all_counts_total[, (model_cohorts_vars) := NULL]
     cols_sel_model <- c("isTarget", setdiff(cohort_vars, model_cohorts_vars))
 
     # For mutations
-    mut_counts_total = data.table::copy(all_counts_total)
+    mut_counts_total <- data.table::copy(all_counts_total)
     mut_counts_total[, (cols_sel_model) := lapply(seq_along(.SD), function(idx) {
       col_name <- names(.SD)[idx]
       if (col_name == "isTarget") {
@@ -132,9 +134,9 @@ fit_selection_model <- function(mutation_table,
       }
       if (is.factor(.SD[[idx]])) {
         # Assuming the levels are sorted alphabetically by default
-        control_level <- levels(.SD[[idx]])[1]  # First level as control
+        control_level <- levels(.SD[[idx]])[1] # First level as control
         # Check if there's more than one level to assign the second as test; otherwise, use the first level
-        test_level <- if(length(levels(.SD[[idx]])) > 1) levels(.SD[[idx]])[2] else control_level
+        test_level <- if (length(levels(.SD[[idx]])) > 1) levels(.SD[[idx]])[2] else control_level
 
         result <- ifelse(as.character(.SD[[idx]]) == control_level, control_name, test_name)
       } else {
@@ -156,7 +158,7 @@ fit_selection_model <- function(mutation_table,
     estimates_corrected <- merge(estimates_corrected, mut_counts_total, by = "Cohort")
 
     # For nucleotides at risk
-    nts_counts_total = data.table::copy(all_counts_total)
+    nts_counts_total <- data.table::copy(all_counts_total)
     nts_counts_total[, (cols_sel_model) := lapply(seq_along(.SD), function(idx) {
       col_name <- names(.SD)[idx]
       if (col_name == "isTarget") {
@@ -168,9 +170,9 @@ fit_selection_model <- function(mutation_table,
       }
       if (is.factor(.SD[[idx]])) {
         # Assuming the levels are sorted alphabetically by default
-        control_level <- levels(.SD[[idx]])[1]  # First level as control
+        control_level <- levels(.SD[[idx]])[1] # First level as control
         # Check if there's more than one level to assign the second as test; otherwise, use the first level
-        test_level <- if(length(levels(.SD[[idx]])) > 1) levels(.SD[[idx]])[2] else control_level
+        test_level <- if (length(levels(.SD[[idx]])) > 1) levels(.SD[[idx]])[2] else control_level
 
         result <- ifelse(as.character(.SD[[idx]]) == control_level, control_name, test_name)
       } else {
@@ -179,14 +181,14 @@ fit_selection_model <- function(mutation_table,
       return(result)
     }), .SDcols = cols_sel_model]
     nts_counts_total <- data.table::dcast(nts_counts_total,
-                                          formula = as.formula(paste(
-                                            "Cohort ~",
-                                            paste(cols_sel_model,
-                                                  collapse = "+"
-                                            )
-                                          )),
-                                          fun.aggregate = unique,
-                                          value.var = "ntAtRisk", fill = 0
+      formula = as.formula(paste(
+        "Cohort ~",
+        paste(cols_sel_model,
+          collapse = "+"
+        )
+      )),
+      fun.aggregate = unique,
+      value.var = "ntAtRisk", fill = 0
     )
 
     estimates_corrected <- merge(estimates_corrected, nts_counts_total, by = "Cohort")
