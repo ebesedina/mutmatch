@@ -60,18 +60,20 @@ process_target_rows <- function(data, target_type) {
 #' @examples
 #' \dontrun{
 #' selection_estimates <- get_selection_estimates_neighbors(
-#' hgnc = "KRAS",
-#' mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
-#' annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz",
-#' package = "mutmatch"),
-#' annotationGenomeWidePath = system.file("extdata","example_genomewide_annotation.csv",
-#' package = "mutmatch"),
-#' neighborsWindow = "0.5Mb",
-#' outlierNeighborsThreshold = 0.2,
-#' simtimes = 500
+#'   hgnc = "KRAS",
+#'   mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
+#'   annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz",
+#'     package = "mutmatch"
+#'   ),
+#'   annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv",
+#'     package = "mutmatch"
+#'   ),
+#'   neighborsWindow = "0.5Mb",
+#'   outlierNeighborsThreshold = 0.2,
+#'   simtimes = 500
 #' )
-#'  selection_estimates <- post_process_pvalues(selection_estimates)
-#'  }
+#' selection_estimates <- post_process_pvalues(selection_estimates)
+#' }
 #' @export
 post_process_pvalues <- function(selection_estimates) {
   target_coefficients <- c("isTarget1", "isTarget1:CNA-1", "isTarget1:CNA1")

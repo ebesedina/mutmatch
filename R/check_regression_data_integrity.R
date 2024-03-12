@@ -18,12 +18,14 @@
 #' @export
 check_regression_data_integrity <- function(mutation_table,
                                             formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + Mutation + offset(log(ntAtRisk))") {
-# Check presence of columns used in the formula
+  # Check presence of columns used in the formula
   var_names <- extract_variables_from_formula(formula)
   non_existing_vars <- setdiff(var_names, names(mutation_table))
   if (length(non_existing_vars) > 0) {
-    stop(sprintf("The following variables from the formula are not found in the data.table: %s",
-                 paste(non_existing_vars, collapse = ", ")))
+    stop(sprintf(
+      "The following variables from the formula are not found in the data.table: %s",
+      paste(non_existing_vars, collapse = ", ")
+    ))
   }
 
   # Check if isTarget has 2 levels
