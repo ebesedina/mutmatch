@@ -43,7 +43,7 @@ process_target_rows <- function(data, target_type) {
     pvalues_sim <- 10^(-as.numeric(unlist(extracted_pvalues_list)))
     data[target_rows, pVal_corrected := correct_pvalues(data[target_rows]$pVal, pvalues_sim)]
   }
-  return(data)
+  return(data[])
 }
 
 
@@ -62,8 +62,10 @@ process_target_rows <- function(data, target_type) {
 #' selection_estimates <- get_selection_estimates_neighbors(
 #' hgnc = "KRAS",
 #' mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
-#' annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
-#' annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv", package = "mutmatch"),
+#' annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz",
+#' package = "mutmatch"),
+#' annotationGenomeWidePath = system.file("extdata","example_genomewide_annotation.csv",
+#' package = "mutmatch"),
 #' neighborsWindow = "0.5Mb",
 #' outlierNeighborsThreshold = 0.2,
 #' simtimes = 500
@@ -78,5 +80,5 @@ post_process_pvalues <- function(selection_estimates) {
       selection_estimates <- process_target_rows(selection_estimates, target)
     }
   }
-  return(selection_estimates)
+  return(selection_estimates[])
 }

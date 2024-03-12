@@ -67,8 +67,8 @@ fit_selection_model <- function(mutation_table,
 
     estimates_corrected <- cbind(estimates_corrected, mut_counts_total)
 
-    # Add nucleotides at risk counts per tested and controlled region
-    nts_counts_total <- mutation_table[, .(ntAtRisk = sum(ntAtRisk)
+    # Add nucleotides at risk counts per tested and controlled region; each nucleotide is counted 3 times because of 3 mutation types
+    nts_counts_total <- mutation_table[, .(ntAtRisk = sum(ntAtRisk)/3
     ), by = .(isTarget)]
     nts_counts_total <- data.table::dcast(nts_counts_total, formula = ... ~ isTarget, value.var = "ntAtRisk")
     data.table::setnames(nts_counts_total, old = c("0", "1"), new = c("NtN_isTarget_control", "NtN_isTarget_tested"))
@@ -112,9 +112,9 @@ fit_selection_model <- function(mutation_table,
     message("Correcting selection estimates using simulated data")
     estimates_corrected <- debias_selection_estimates(estimates_original, estimates_simulated)
 
-    # Add mutation and nucluotides at risk counts per tested and controlled region
+    # Add mutation and nucluotides at risk counts per tested and controlled region; each nucleotide is counted 3 times because of 3 mutation types
     all_counts_total <- mutation_table[, .(MutationNumber = sum(MutationNumber),
-                                           ntAtRisk = sum(ntAtRisk)), by = eval(c(cohort_vars, "isTarget"))]
+                                           ntAtRisk = sum(ntAtRisk)/3), by = eval(c(cohort_vars, "isTarget"))]
     data.table::setDT(all_counts_total)[, Cohort := do.call(paste, c(.SD, sep = "__")), .SDcols = model_cohorts_vars]
     all_counts_total[, (model_cohorts_vars) := NULL]
     cols_sel_model <- c("isTarget", setdiff(cohort_vars, model_cohorts_vars))

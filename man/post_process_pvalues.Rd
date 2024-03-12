@@ -25,8 +25,10 @@ or \code{get_selection_estimates_cadd} to improve resolution when extensive gene
 selection_estimates <- get_selection_estimates_neighbors(
 hgnc = "KRAS",
 mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
-annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
-annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv", package = "mutmatch"),
+annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz",
+package = "mutmatch"),
+annotationGenomeWidePath = system.file("extdata","example_genomewide_annotation.csv",
+package = "mutmatch"),
 neighborsWindow = "0.5Mb",
 outlierNeighborsThreshold = 0.2,
 simtimes = 500
