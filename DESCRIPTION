@@ -17,7 +17,8 @@ Depends:
     S4Vectors,
     GenomicRanges,
     BiocGenerics,
-    GenomeInfoDb
+    GenomeInfoDb,
+    BSgenome.Hsapiens.UCSC.hg19
 LazyData: true
 biocViews:
 Imports: 
@@ -35,5 +36,4 @@ Imports:
     arm,
     Biostrings,
     rtracklayer,
-    BSgenome,
-    BSgenome.Hsapiens.UCSC.hg19
+    BSgenome
