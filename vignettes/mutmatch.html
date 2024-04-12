@@ -341,8 +341,10 @@ estimation</h1>
 
 
 
-<p>This vignette demonstrates how to use the mutmatch package for
-estimating selection pressures and epistasis in somatic cells.</p>
+<p>This vignette demonstrates how to use the <em>mutmatch</em> package
+to estimate selection pressures and epistasis in somatic cells by
+utilizing data from neighboring genes to establish a baseline mutation
+rate..</p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>The <strong>mutmatch</strong> package provides tools for analyzing
@@ -356,15 +358,17 @@ reproducible analysis.</p>
 </div>
 <div id="loading-the-package" class="section level2">
 <h2>Loading the Package</h2>
-<p>Load the <strong>mutmatch</strong> package into your R session:</p>
+<p>Load the <em>mutmatch</em> package into your R session:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(mutmatch)</span></code></pre></div>
 </div>
 <div id="basic-usage" class="section level2">
 <h2>Basic usage</h2>
 <p>Our primary focus is to demonstrate how to estimate selection
-pressures acting on specific genes, such as the KRAS gene, by using the
-provided sample data. Below is a command utilizing multiple parameters
-within the model:</p>
+pressures acting on specific genes, such as the <em>KRAS</em> gene, by
+using the provided sample data. Below is a command designed to estimate
+selection on <em>KRAS</em> when in a diploid state, as well as to assess
+the change in selection pressure resulting from the loss of one gene
+copy:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>selection_estimates <span class="ot">&lt;-</span> <span class="fu">get_selection_estimates_neighbors</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">hgnc =</span> <span class="st">&quot;KRAS&quot;</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">mutationsPath =</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;example_mutations.csv.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;mutmatch&quot;</span>),</span>
@@ -385,15 +389,29 @@ within the model:</p>
 <div id="explanation-of-variables-in-the-model" class="section level3">
 <h3>Explanation of Variables in the Model:</h3>
 <ul>
-<li><code>isTarget</code>: A binary indicator for whether mutations
-occur in the gene of interest versus background genes.</li>
-<li><code>CNA</code>: Adjusts for the impact of copy number alterations
-on mutation rates.</li>
-<li><code>isTarget:CNA</code>: Evaluates conditional selection pressures
-in samples with varying copy number alterations.</li>
-<li><code>Mutation</code>: Controls for biases introduced by different
-mutation spectra.</li>
+<li><code>isTarget</code> (<span class="math inline">\(t\)</span>): A
+binary indicator that determines whether mutations occur in the gene of
+interest versus background genes. It serves as a proxy for
+selection.</li>
+<li><code>CNA</code> (<span class="math inline">\(c\)</span>): Adjusts
+for the impact of copy number alterations on mutation rates.</li>
+<li><code>isTarget:CNA</code> (<span class="math inline">\(tc\)</span>):
+Evaluates conditional selection pressures in samples with varying copy
+number alterations.</li>
+<li><code>Mutation</code> (<span class="math inline">\(m_{i}\)</span>):
+Controls for biases introduced by different mutation spectra, where
+<span class="math inline">\(i\)</span> denotes different mutation
+types.</li>
+<li><code>ntAtRisk</code> (<span class="math inline">\(r\)</span>):
+Scales estimates across DNA regions of varying lengths.</li>
+<li><code>Intercept</code> (<span class="math inline">\(\alpha\)</span>): Represents the baseline level of
+mutation rate in the absence of other factors, serving as a reference
+point for the model.</li>
 </ul>
+<p>The formal model expression, using a logarithmic link function, is
+presented as follows: <span class="math display">\[ \log E[Y] = \omega t
++ \gamma c + \delta tc + \sum_{i} \mu_i m_i + \alpha + \log r
+\]</span></p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">head</span>(selection_estimates)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; Key: &lt;Cohort&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;    Cohort        coefName         coef coef_corrected         pVal</span></span>
@@ -460,10 +478,36 @@ mutation spectra.</li>
 <span id="cb3-64"><a href="#cb3-64" tabindex="-1"></a><span class="co">#&gt; 4:                          2775                          0</span></span>
 <span id="cb3-65"><a href="#cb3-65" tabindex="-1"></a><span class="co">#&gt; 5:                          2775                          0</span></span>
 <span id="cb3-66"><a href="#cb3-66" tabindex="-1"></a><span class="co">#&gt; 6:                          2775                          0</span></span></code></pre></div>
-<p>Postprocessing is crucial to refine initial estimates (consult <a href="https://github.com/ebesedina/mutmatch#postprocessing">Postprocessing
-section</a> or the publication for the explanation):</p>
+<p>Additionally, along with the selection estimates, raw mutation counts
+and the number of nucleotides-at-risk are detailed for each region under
+various states:</p>
+<ul>
+<li><code>*_isTarget_control_CNA_control</code>: Represents neighboring
+genes in the baseline (diploid) CNA state.</li>
+<li><code>*_isTarget_control_CNA_test</code>: Represents neighboring
+genes in the tested CNA state (deleted in this context).</li>
+<li><code>*_isTarget_test_CNA_control</code>: Refers to the central gene
+(<em>KRAS</em>) in its diploid CNA state.</li>
+<li><code>*_isTarget_test_CNA_test</code>: Refers to the <em>KRAS</em>
+gene in samples where a deletion has occurred.</li>
+</ul>
+<p>The prefix <em>MutN</em> denotes mutation counts, while <em>NtN</em>
+refers to the number of nucleotides-at-risk.</p>
+</div>
+<div id="postprocessing" class="section level3">
+<h3>Postprocessing</h3>
+<p>Postprocessing is essential for refining initial estimates and
+addressing potential biases. For a detailed explanation of this process,
+please consult the <a href="https://github.com/ebesedina/mutmatch#postprocessing">Postprocessing
+section</a> or the related publication. The
+<code>get_selection_estimates_neighbors</code> function’s output
+includes the columns <code>coef_sim</code> and
+<code>pVal_neglog10_sim</code>, which contain the distributions of
+selection estimates and their corresponding p-values based on a
+simulated (randomized) dataset. This data helps correct for
+distributional biases:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>selection_estimates <span class="ot">=</span> <span class="fu">post_process_pvalues</span>(selection_estimates)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>selection_estimates[, <span class="fu">c</span>(<span class="st">&quot;Cohort&quot;</span>, <span class="st">&quot;coefName&quot;</span>, <span class="st">&quot;coef&quot;</span>, <span class="st">&quot;coef_corrected&quot;</span>, <span class="st">&quot;pVal&quot;</span>,<span class="st">&quot;pVal_corrected&quot;</span>)] <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>selection_estimates[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="fu">c</span>(<span class="st">&quot;Cohort&quot;</span>, <span class="st">&quot;coefName&quot;</span>, <span class="st">&quot;coef&quot;</span>, <span class="st">&quot;coef_corrected&quot;</span>, <span class="st">&quot;pVal&quot;</span>,<span class="st">&quot;pVal_corrected&quot;</span>)] <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; Key: &lt;Cohort&gt;</span></span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt;    Cohort        coefName         coef coef_corrected         pVal</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;    &lt;char&gt;          &lt;char&gt;        &lt;num&gt;          &lt;num&gt;        &lt;num&gt;</span></span>
@@ -472,15 +516,13 @@ section</a> or the publication for the explanation):</p>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; 3: COREAD           CNA-1   0.00000000     0.00000000 1.000000e+00</span></span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; 4: COREAD isTarget1:CNA-1   0.00000000     0.00000000 1.000000e+00</span></span>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; 5: COREAD   MutationACA&gt;G  -0.01132096    -0.01132096 9.908600e-01</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 6: COREAD   MutationACA&gt;T  -0.01132096    -0.01132096 9.908600e-01</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;    pVal_corrected</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;             &lt;num&gt;</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; 1:             NA</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; 2:              0</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; 3:             NA</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; 4:              1</span></span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; 5:             NA</span></span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; 6:             NA</span></span></code></pre></div>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;    pVal_corrected</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; 1:             NA</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; 2:              0</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; 3:             NA</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; 4:              1</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; 5:             NA</span></span></code></pre></div>
 </div>
 </div>
 <div id="inputs-and-default-parameters" class="section level2">
@@ -488,8 +530,8 @@ section</a> or the publication for the explanation):</p>
 <p>In this section, we delve into the details of the input data formats
 and the default parameters used in the
 <code>get_selection_estimates_neighbors</code> function. Understanding
-these inputs is crucial for effective use of the
-<strong>mutmatch</strong> package.</p>
+these inputs is crucial for effective use of the <em>mutmatch</em>
+package.</p>
 <div id="mutation-data" class="section level3">
 <h3>Mutation Data</h3>
 <p>The <code>mutationPath</code> parameter requires a path to the CSV
@@ -583,55 +625,15 @@ model to estimate selection pressures across various cancer types:</p>
 <span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">&quot;bayes.poisson&quot;</span>,</span>
 <span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="at">simtimes =</span> <span class="dv">50</span></span>
 <span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>) </span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="fu">head</span>(selection_estimates_pancancer)</span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;           coefName         coef coef_corrected         pVal upperTailPval</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt;             &lt;char&gt;        &lt;num&gt;          &lt;num&gt;        &lt;num&gt;         &lt;num&gt;</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; 1:       Intercept -14.45246500   -14.45246500 8.264699e-19  1.0000000000</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 2:       isTarget1   4.47370855     4.48536625 1.711890e-03  0.0008559448</span></span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; 3:           CNA-1  -0.24775717    -0.24775717 7.749085e-01  0.6125457419</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; 4: isTarget1:CNA-1  -0.23852167    -0.20190583 7.851223e-01  0.6074388616</span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; 5:      CancerLUAD  -0.01051128    -0.01051128 9.853077e-01  0.5073461251</span></span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; 6:      CancerSKCM  -2.17437948    -2.17437948 4.689936e-02  0.9765503177</span></span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt;    lowerTailPval Std.error converged coef_sim_median</span></span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt;            &lt;num&gt;     &lt;num&gt;    &lt;lgcl&gt;           &lt;num&gt;</span></span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; 1:    0.00000000 1.6318685      TRUE    -11.70467042</span></span>
-<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; 2:    0.99914406 1.4265027      TRUE     -0.01165769</span></span>
-<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; 3:    0.38745426 0.8664040      TRUE     -0.28562600</span></span>
-<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; 4:    0.39256114 0.8748273      TRUE     -0.03661584</span></span>
-<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; 5:    0.49265387 0.5707986      TRUE     -0.01678863</span></span>
-<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt; 6:    0.02344968 1.0941882      TRUE     -2.15928210</span></span>
-<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                           coef_sim</span></span>
-<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                             &lt;char&gt;</span></span>
-<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a><span class="co">#&gt; 1: -11.792 -11.792 -11.628 -11.792 -11.705 -11.792 -11.705 -11.628 -11.628 -11.628 -11.628 -11.942 -11.942 -11.628 -11.792 -11.792 -11.942 -11.705 -11.628 -11.628 -11.792 -11.628 -11.942 -11.792 -11.628 -11.628 -11.705 -11.942 -11.628 -11.705 -11.792 -11.705 -11.628 -11.705 -11.705 -11.705 -11.628 -11.628 -11.792 -11.628 -11.628 -11.628 -11.628 -12.193 -11.792 -11.942 -11.792 -11.705 -11.942 -11.628</span></span>
-<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a><span class="co">#&gt; 2:                                                                       0.421 0.421 -0.583 0.421 -0.012 0.421 -0.012 -0.583 -0.583 -0.583 -0.583 0.944 0.944 -0.583 0.421 0.421 0.944 -0.012 -0.583 -0.583 0.421 -0.583 0.944 0.421 -0.583 -0.583 -0.012 0.944 -0.583 -0.012 0.421 -0.012 -0.583 -0.012 -0.012 -0.012 -0.583 -0.583 0.421 -0.583 -0.583 -0.583 -0.583 1.553 0.421 0.944 0.421 -0.012 0.944 -0.583</span></span>
-<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a><span class="co">#&gt; 3:                                                   -0.285 -0.285 -0.286 -0.285 -0.286 -0.285 -0.286 -0.286 -0.286 -0.286 -0.286 -0.282 -0.282 -0.286 -0.285 -0.285 -0.282 -0.286 -0.286 -0.286 -0.285 -0.286 -0.282 -0.285 -0.286 -0.286 -0.286 -0.282 -0.286 -0.286 -0.285 -0.286 -0.286 -0.286 -0.286 -0.286 -0.286 -0.286 -0.285 -0.286 -0.286 -0.286 -0.286 -0.277 -0.285 -0.282 -0.285 -0.286 -0.282 -0.286</span></span>
-<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a><span class="co">#&gt; 4:                                                   -0.056 -0.056 -0.018 -0.056 -0.037 -0.056 -0.037 -0.018 -0.018 -0.018 -0.018 -0.084 -0.084 -0.018 -0.056 -0.056 -0.084 -0.037 -0.018 -0.018 -0.056 -0.018 -0.084 -0.056 -0.018 -0.018 -0.037 -0.084 -0.018 -0.037 -0.056 -0.037 -0.018 -0.037 -0.037 -0.037 -0.018 -0.018 -0.056 -0.018 -0.018 -0.018 -0.018 -0.121 -0.056 -0.084 -0.056 -0.037 -0.084 -0.018</span></span>
-<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a><span class="co">#&gt; 5:                                                   -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.016 -0.016 -0.017 -0.017 -0.017 -0.016 -0.017 -0.017 -0.017 -0.017 -0.017 -0.016 -0.017 -0.017 -0.017 -0.017 -0.016 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.017 -0.015 -0.017 -0.016 -0.017 -0.017 -0.016 -0.017</span></span>
-<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a><span class="co">#&gt; 6:                                                               -2.16 -2.16 -2.158 -2.16 -2.159 -2.16 -2.159 -2.158 -2.158 -2.158 -2.158 -2.162 -2.162 -2.158 -2.16 -2.16 -2.162 -2.159 -2.158 -2.158 -2.16 -2.158 -2.162 -2.16 -2.158 -2.158 -2.159 -2.162 -2.158 -2.159 -2.16 -2.159 -2.158 -2.159 -2.159 -2.159 -2.158 -2.158 -2.16 -2.158 -2.158 -2.158 -2.158 -2.164 -2.16 -2.162 -2.16 -2.159 -2.162 -2.158</span></span>
-<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                    pVal_neglog10_sim</span></span>
-<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                               &lt;char&gt;</span></span>
-<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a><span class="co">#&gt; 1: 36.55 36.55 36.404 36.55 36.535 36.55 36.535 36.404 36.404 36.404 36.404 36.306 36.306 36.404 36.55 36.55 36.306 36.535 36.404 36.404 36.55 36.404 36.306 36.55 36.404 36.404 36.535 36.306 36.404 36.535 36.55 36.535 36.404 36.535 36.535 36.535 36.404 36.404 36.55 36.404 36.404 36.404 36.404 35.549 36.55 36.306 36.55 36.535 36.306 36.404</span></span>
-<span id="cb8-40"><a href="#cb8-40" tabindex="-1"></a><span class="co">#&gt; 2:                                       0.293 0.293 0.337 0.293 0.006 0.293 0.006 0.337 0.337 0.337 0.337 0.841 0.841 0.337 0.293 0.293 0.841 0.006 0.337 0.337 0.293 0.337 0.841 0.293 0.337 0.337 0.006 0.841 0.337 0.006 0.293 0.006 0.337 0.006 0.006 0.006 0.337 0.337 0.293 0.337 0.337 0.337 0.337 1.717 0.293 0.841 0.293 0.006 0.841 0.337</span></span>
-<span id="cb8-41"><a href="#cb8-41" tabindex="-1"></a><span class="co">#&gt; 3:                                        0.136 0.136 0.137 0.136 0.136 0.136 0.136 0.137 0.137 0.137 0.137 0.134 0.134 0.137 0.136 0.136 0.134 0.136 0.137 0.137 0.136 0.137 0.134 0.136 0.137 0.137 0.136 0.134 0.137 0.136 0.136 0.136 0.137 0.136 0.136 0.136 0.137 0.137 0.136 0.137 0.137 0.137 0.137 0.13 0.136 0.134 0.136 0.136 0.134 0.137</span></span>
-<span id="cb8-42"><a href="#cb8-42" tabindex="-1"></a><span class="co">#&gt; 4:                                       0.021 0.021 0.006 0.021 0.013 0.021 0.013 0.006 0.006 0.006 0.006 0.032 0.032 0.006 0.021 0.021 0.032 0.013 0.006 0.006 0.021 0.006 0.032 0.021 0.006 0.006 0.013 0.032 0.006 0.013 0.021 0.013 0.006 0.013 0.013 0.013 0.006 0.006 0.021 0.006 0.006 0.006 0.006 0.049 0.021 0.032 0.021 0.013 0.032 0.006</span></span>
-<span id="cb8-43"><a href="#cb8-43" tabindex="-1"></a><span class="co">#&gt; 5:                                                                                        0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.009 0.01 0.01 0.01 0.01 0.01 0.01</span></span>
-<span id="cb8-44"><a href="#cb8-44" tabindex="-1"></a><span class="co">#&gt; 6:                                       1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.326 1.326 1.325 1.325 1.325 1.326 1.325 1.325 1.325 1.325 1.325 1.326 1.325 1.325 1.325 1.325 1.326 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.325 1.326 1.325 1.326 1.325 1.325 1.326 1.325</span></span>
-<span id="cb8-45"><a href="#cb8-45" tabindex="-1"></a><span class="co">#&gt;    MutN_isTarget_control MutN_isTarget_tested NtN_isTarget_control</span></span>
-<span id="cb8-46"><a href="#cb8-46" tabindex="-1"></a><span class="co">#&gt;                    &lt;int&gt;                &lt;int&gt;                &lt;num&gt;</span></span>
-<span id="cb8-47"><a href="#cb8-47" tabindex="-1"></a><span class="co">#&gt; 1:                     0                    7                74880</span></span>
-<span id="cb8-48"><a href="#cb8-48" tabindex="-1"></a><span class="co">#&gt; 2:                     0                    7                74880</span></span>
-<span id="cb8-49"><a href="#cb8-49" tabindex="-1"></a><span class="co">#&gt; 3:                     0                    7                74880</span></span>
-<span id="cb8-50"><a href="#cb8-50" tabindex="-1"></a><span class="co">#&gt; 4:                     0                    7                74880</span></span>
-<span id="cb8-51"><a href="#cb8-51" tabindex="-1"></a><span class="co">#&gt; 5:                     0                    7                74880</span></span>
-<span id="cb8-52"><a href="#cb8-52" tabindex="-1"></a><span class="co">#&gt; 6:                     0                    7                74880</span></span>
-<span id="cb8-53"><a href="#cb8-53" tabindex="-1"></a><span class="co">#&gt;    NtN_isTarget_tested</span></span>
-<span id="cb8-54"><a href="#cb8-54" tabindex="-1"></a><span class="co">#&gt;                  &lt;num&gt;</span></span>
-<span id="cb8-55"><a href="#cb8-55" tabindex="-1"></a><span class="co">#&gt; 1:               14430</span></span>
-<span id="cb8-56"><a href="#cb8-56" tabindex="-1"></a><span class="co">#&gt; 2:               14430</span></span>
-<span id="cb8-57"><a href="#cb8-57" tabindex="-1"></a><span class="co">#&gt; 3:               14430</span></span>
-<span id="cb8-58"><a href="#cb8-58" tabindex="-1"></a><span class="co">#&gt; 4:               14430</span></span>
-<span id="cb8-59"><a href="#cb8-59" tabindex="-1"></a><span class="co">#&gt; 5:               14430</span></span>
-<span id="cb8-60"><a href="#cb8-60" tabindex="-1"></a><span class="co">#&gt; 6:               14430</span></span></code></pre></div>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>selection_estimates_pancancer <span class="ot">=</span> <span class="fu">post_process_pvalues</span>(selection_estimates_pancancer)</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>selection_estimates_pancancer[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="fu">c</span>(<span class="st">&quot;coefName&quot;</span>, <span class="st">&quot;coef&quot;</span>, <span class="st">&quot;coef_corrected&quot;</span>, <span class="st">&quot;pVal&quot;</span>,<span class="st">&quot;pVal_corrected&quot;</span>)] <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt;           coefName         coef coef_corrected         pVal pVal_corrected</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;             &lt;char&gt;        &lt;num&gt;          &lt;num&gt;        &lt;num&gt;          &lt;num&gt;</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 1:       Intercept -14.45246500   -14.45246500 8.264699e-19             NA</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; 2:       isTarget1   4.47370855     4.48536625 1.711890e-03              0</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; 3:           CNA-1  -0.24775717    -0.24775717 7.749085e-01             NA</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; 4: isTarget1:CNA-1  -0.23852167    -0.20190583 7.851223e-01              0</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; 5:      CancerLUAD  -0.01051128    -0.01051128 9.853077e-01             NA</span></span></code></pre></div>
 <p>Alternatively, by removing the CNA variable from the formula—while
 still including the CNA annotations via the annotationGenePath—the model
 can calculate the selection coefficients separately for each cancer type
@@ -648,56 +650,23 @@ Cohort column.</p>
 <span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">&quot;bayes.poisson&quot;</span>,</span>
 <span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="at">simtimes =</span> <span class="dv">50</span></span>
 <span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>) </span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="fu">head</span>(selection_estimates_per_cna)</span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; Key: &lt;Cohort&gt;</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;       Cohort      coefName          coef coef_corrected         pVal</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;       &lt;char&gt;        &lt;char&gt;         &lt;num&gt;          &lt;num&gt;        &lt;num&gt;</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; 1: COREAD__0     Intercept -12.692554761  -12.692554761 3.117515e-17</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; 2: COREAD__0     isTarget1   3.278199383    3.564233627 1.191858e-02</span></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; 3: COREAD__0 MutationACA&gt;G  -0.011320956   -0.011320956 9.908600e-01</span></span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; 4: COREAD__0 MutationACA&gt;T  -0.011320956   -0.011320956 9.908600e-01</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; 5: COREAD__0 MutationACC&gt;A   5.560176673    5.560176673 1.033908e-05</span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; 6: COREAD__0 MutationACC&gt;G  -0.005470936   -0.005470936 9.956075e-01</span></span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;    upperTailPval lowerTailPval Std.error converged coef_sim_median</span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;     &lt;num&gt;    &lt;lgcl&gt;           &lt;num&gt;</span></span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; 1:  1.000000e+00     0.0000000 1.5034874      TRUE   -10.982641672</span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; 2:  5.959291e-03     0.9940407 1.3036944      TRUE    -0.286034244</span></span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; 3:  5.045700e-01     0.4954300 0.9882490      TRUE    -0.006500099</span></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; 4:  5.045700e-01     0.4954300 0.9882490      TRUE    -0.006500099</span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; 5:  5.169538e-06     0.9999948 1.2608231      TRUE     5.466397659</span></span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; 6:  5.021963e-01     0.4978037 0.9937703      TRUE    -0.005898527</span></span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                           coef_sim</span></span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                             &lt;char&gt;</span></span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; 1: -11.096 -11.096 -10.983 -11.096 -10.983 -10.983 -11.096 -10.983 -10.983 -10.983 -10.983 -11.096 -11.096 -10.983 -11.096 -11.096 -11.431 -10.983 -10.983 -10.983 -11.096 -10.983 -11.431 -11.096 -10.983 -10.983 -10.983 -11.096 -10.983 -11.096 -11.096 -11.096 -10.983 -10.983 -10.983 -11.096 -10.983 -10.983 -11.096 -10.983 -10.983 -10.983 -10.983 -11.431 -11.096 -11.096 -11.096 -10.983 -11.096 -10.983</span></span>
-<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt; 2:                                                                          0.354 0.354 -0.286 0.354 -0.286 -0.286 0.354 -0.286 -0.286 -0.286 -0.286 0.354 0.354 -0.286 0.354 0.354 1.376 -0.286 -0.286 -0.286 0.354 -0.286 1.376 0.354 -0.286 -0.286 -0.286 0.354 -0.286 0.354 0.354 0.354 -0.286 -0.286 -0.286 0.354 -0.286 -0.286 0.354 -0.286 -0.286 -0.286 -0.286 1.376 0.354 0.354 0.354 -0.286 0.354 -0.286</span></span>
-<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; 3:                                                   -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.009 -0.007 -0.007 -0.007 -0.007 -0.007 -0.009 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.009 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007</span></span>
-<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt; 4:                                                   -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.009 -0.007 -0.007 -0.007 -0.007 -0.007 -0.009 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007 -0.009 -0.007 -0.007 -0.007 -0.007 -0.007 -0.007</span></span>
-<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a><span class="co">#&gt; 5:                                                                                                                         5.48 5.48 5.466 5.48 5.466 5.466 5.48 5.466 5.466 5.466 5.466 5.48 5.48 5.466 5.48 5.48 5.508 5.466 5.466 5.466 5.48 5.466 5.508 5.48 5.466 5.466 5.466 5.48 5.466 5.48 5.48 5.48 5.466 5.466 5.466 5.48 5.466 5.466 5.48 5.466 5.466 5.466 5.466 5.508 5.48 5.48 5.48 5.466 5.48 5.466</span></span>
-<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a><span class="co">#&gt; 6:                                                   -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006 -0.006</span></span>
-<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                pVal_neglog10_sim</span></span>
-<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                           &lt;char&gt;</span></span>
-<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt; 1: 25.873 25.873 25.882 25.873 25.882 25.882 25.873 25.882 25.882 25.882 25.882 25.873 25.873 25.882 25.873 25.873 24.647 25.882 25.882 25.882 25.873 25.882 24.647 25.873 25.882 25.882 25.882 25.873 25.882 25.873 25.873 25.873 25.882 25.882 25.882 25.873 25.882 25.882 25.873 25.882 25.882 25.882 25.882 24.647 25.873 25.873 25.873 25.882 25.873 25.882</span></span>
-<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt; 2:                                                   0.188 0.188 0.137 0.188 0.137 0.137 0.188 0.137 0.137 0.137 0.137 0.188 0.188 0.137 0.188 0.188 0.932 0.137 0.137 0.137 0.188 0.137 0.932 0.188 0.137 0.137 0.137 0.188 0.137 0.188 0.188 0.188 0.137 0.137 0.137 0.188 0.137 0.137 0.188 0.137 0.137 0.137 0.137 0.932 0.188 0.188 0.188 0.137 0.188 0.137</span></span>
-<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a><span class="co">#&gt; 3:                                                   0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.003 0.002 0.002 0.002 0.002 0.002 0.003 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.003 0.002 0.002 0.002 0.002 0.002 0.002</span></span>
-<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="co">#&gt; 4:                                                   0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.003 0.002 0.002 0.002 0.002 0.002 0.003 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.003 0.002 0.002 0.002 0.002 0.002 0.002</span></span>
-<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="co">#&gt; 5:                                                      4.944 4.944 4.938 4.944 4.938 4.938 4.944 4.938 4.938 4.938 4.938 4.944 4.944 4.938 4.944 4.944 4.96 4.938 4.938 4.938 4.944 4.938 4.96 4.944 4.938 4.938 4.938 4.944 4.938 4.944 4.944 4.944 4.938 4.938 4.938 4.944 4.938 4.938 4.944 4.938 4.938 4.938 4.938 4.96 4.944 4.944 4.944 4.938 4.944 4.938</span></span>
-<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="co">#&gt; 6:                                                   0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002 0.002</span></span>
-<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a><span class="co">#&gt;    MutN_isTarget_control MutN_isTarget_test NtN_isTarget_control</span></span>
-<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="co">#&gt;                    &lt;int&gt;              &lt;int&gt;                &lt;num&gt;</span></span>
-<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a><span class="co">#&gt; 1:                     0                  3                14400</span></span>
-<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="co">#&gt; 2:                     0                  3                14400</span></span>
-<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a><span class="co">#&gt; 3:                     0                  3                14400</span></span>
-<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a><span class="co">#&gt; 4:                     0                  3                14400</span></span>
-<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a><span class="co">#&gt; 5:                     0                  3                14400</span></span>
-<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a><span class="co">#&gt; 6:                     0                  3                14400</span></span>
-<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a><span class="co">#&gt;    NtN_isTarget_test</span></span>
-<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a><span class="co">#&gt;                &lt;num&gt;</span></span>
-<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="co">#&gt; 1:              2775</span></span>
-<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a><span class="co">#&gt; 2:              2775</span></span>
-<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a><span class="co">#&gt; 3:              2775</span></span>
-<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a><span class="co">#&gt; 4:              2775</span></span>
-<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a><span class="co">#&gt; 5:              2775</span></span>
-<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a><span class="co">#&gt; 6:              2775</span></span></code></pre></div>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>selection_estimates_per_cna <span class="ot">=</span> <span class="fu">post_process_pvalues</span>(selection_estimates_per_cna)</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>selection_estimates_per_cna[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="fu">c</span>(<span class="st">&quot;Cohort&quot;</span>, <span class="st">&quot;coefName&quot;</span>, <span class="st">&quot;coef&quot;</span>, <span class="st">&quot;coef_corrected&quot;</span>, <span class="st">&quot;pVal&quot;</span>,<span class="st">&quot;pVal_corrected&quot;</span>)]</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; Key: &lt;Cohort&gt;</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;       Cohort      coefName         coef coef_corrected         pVal</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;       &lt;char&gt;        &lt;char&gt;        &lt;num&gt;          &lt;num&gt;        &lt;num&gt;</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; 1: COREAD__0     Intercept -12.69255476   -12.69255476 3.117515e-17</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; 2: COREAD__0     isTarget1   3.27819938     3.56423363 1.191858e-02</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; 3: COREAD__0 MutationACA&gt;G  -0.01132096    -0.01132096 9.908600e-01</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; 4: COREAD__0 MutationACA&gt;T  -0.01132096    -0.01132096 9.908600e-01</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; 5: COREAD__0 MutationACC&gt;A   5.56017667     5.56017667 1.033908e-05</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;    pVal_corrected</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; 1:             NA</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; 2:              0</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; 3:             NA</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; 4:             NA</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; 5:             NA</span></span></code></pre></div>
 <div id="considerations-for-different-distribution-models" class="section level3">
 <h3>Considerations for Different Distribution Models</h3>
 <p>If the dataset is sufficiently large (e.g., high mutation counts in
@@ -713,19 +682,17 @@ estimates under high stratification:</p>
 <span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>     <span class="at">neighborsWindow =</span> <span class="st">&quot;0.5Mb&quot;</span>,</span>
 <span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">outlierNeighborsThreshold =</span> <span class="fl">0.2</span>,</span>
 <span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  )</span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>mutation_table<span class="sc">$</span>MutationNumber <span class="sc">%&gt;%</span> <span class="fu">sum</span>() <span class="sc">%&gt;%</span> <span class="fu">print</span>()</span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; [1] 7</span></span></code></pre></div>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>mutation_table<span class="sc">$</span>MutationNumber <span class="sc">%&gt;%</span> <span class="fu">sum</span>() <span class="sc">%&gt;%</span> <span class="fu">print</span>()</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; [1] 7</span></span></code></pre></div>
 </div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
 <p>For more detailed parameter usage and additional functions, consult
-the <strong>mutmatch</strong> documentation on specific functions, for
-example <code>?get_selection_estimates_neighbors</code>. The flexibility
-of <strong>mutmatch</strong> allows for extensive analysis tailored to
-specific research needs.</p>
+the <em>mutmatch</em> documentation on specific functions, for example
+<code>?get_selection_estimates_neighbors</code>. The flexibility of
+<em>mutmatch</em> allows for extensive analysis tailored to specific
+research needs.</p>
 </div>
 
 

@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette demonstrates how to use the mutmatch package for estimating selection pressures and epistasis in somatic cells.
+This vignette demonstrates how to use the *mutmatch* package to estimate selection pressures and epistasis in somatic cells by utilizing data from neighboring genes to establish a baseline mutation rate..
 
 ## Introduction
 
@@ -22,7 +22,7 @@ The **mutmatch** package provides tools for analyzing mutation data to estimate 
 
 ## Loading the Package
 
-Load the **mutmatch** package into your R session:
+Load the *mutmatch* package into your R session:
 
 ```{r message=FALSE, warning=FALSE}
 library(mutmatch)
@@ -30,7 +30,7 @@ library(mutmatch)
 
 ## Basic usage
 
-Our primary focus is to demonstrate how to estimate selection pressures acting on specific genes, such as the KRAS gene, by using the provided sample data. Below is a command utilizing multiple parameters within the model:
+Our primary focus is to demonstrate how to estimate selection pressures acting on specific genes, such as the *KRAS* gene, by using the provided sample data. Below is a command designed to estimate selection on *KRAS* when in a diploid state, as well as to assess the change in selection pressure resulting from the loss of one gene copy:
 
 ```{r}
 selection_estimates <- get_selection_estimates_neighbors(
@@ -47,23 +47,39 @@ selection_estimates <- get_selection_estimates_neighbors(
 ```
 ### Explanation of Variables in the Model:
 
-- `isTarget`: A binary indicator for whether mutations occur in the gene of interest versus background genes.
-- `CNA`: Adjusts for the impact of copy number alterations on mutation rates.
-- `isTarget:CNA`: Evaluates conditional selection pressures in samples with varying copy number alterations.
-- `Mutation`: Controls for biases introduced by different mutation spectra.
+- `isTarget` ($t$): A binary indicator that determines whether mutations occur in the gene of interest versus background genes. It serves as a proxy for selection.
+- `CNA` ($c$): Adjusts for the impact of copy number alterations on mutation rates.
+- `isTarget:CNA` ($tc$): Evaluates conditional selection pressures in samples with varying copy number alterations.
+- `Mutation` ($m_{i}$): Controls for biases introduced by different mutation spectra, where $i$ denotes different mutation types.
+- `ntAtRisk` ($r$): Scales estimates across DNA regions of varying lengths.
+- `Intercept` ($\alpha$): Represents the baseline level of mutation rate in the absence of other factors, serving as a reference point for the model.
+
+The formal model expression, using a logarithmic link function, is presented as follows:
+$$ \log E[Y] = \omega t + \gamma c + \delta tc + \sum_{i} \mu_i m_i + \alpha + \log r $$
 
 ```{r}
 head(selection_estimates)
 ```
-Postprocessing is crucial to refine initial estimates (consult [Postprocessing section](https://github.com/ebesedina/mutmatch#postprocessing) or the publication for the explanation):
+Additionally, along with the selection estimates, raw mutation counts and the number of nucleotides-at-risk are detailed for each region under various states:
+
+- `*_isTarget_control_CNA_control`: Represents neighboring genes in the baseline (diploid) CNA state.
+- `*_isTarget_control_CNA_test`: Represents neighboring genes in the tested CNA state (deleted in this context).
+- `*_isTarget_test_CNA_control`: Refers to the central gene (*KRAS*) in its diploid CNA state.
+- `*_isTarget_test_CNA_test`: Refers to the *KRAS* gene in samples where a deletion has occurred.
+
+The prefix *MutN* denotes mutation counts, while *NtN* refers to the number of nucleotides-at-risk.
+
+### Postprocessing
+Postprocessing is essential for refining initial estimates and addressing potential biases. For a detailed explanation of this process, please consult the [Postprocessing section](https://github.com/ebesedina/mutmatch#postprocessing) or the related publication. The `get_selection_estimates_neighbors` function's output includes the columns `coef_sim` and `pVal_neglog10_sim`, which contain the distributions of selection estimates and their corresponding p-values based on a simulated (randomized) dataset. This data helps correct for distributional biases:
 
 ```{r}
 selection_estimates = post_process_pvalues(selection_estimates)
-selection_estimates[, c("Cohort", "coefName", "coef", "coef_corrected", "pVal","pVal_corrected")] %>% head()
+selection_estimates[1:5, c("Cohort", "coefName", "coef", "coef_corrected", "pVal","pVal_corrected")] %>% head()
 ```
+
 ## Inputs and Default Parameters
 
-In this section, we delve into the details of the input data formats and the default parameters used in the `get_selection_estimates_neighbors` function. Understanding these inputs is crucial for effective use of the **mutmatch** package.
+In this section, we delve into the details of the input data formats and the default parameters used in the `get_selection_estimates_neighbors` function. Understanding these inputs is crucial for effective use of the *mutmatch* package.
 
 ### Mutation Data
 
@@ -118,7 +134,8 @@ selection_estimates_pancancer <- get_selection_estimates_neighbors(
   family = "bayes.poisson",
   simtimes = 50
 ) 
-head(selection_estimates_pancancer)
+selection_estimates_pancancer = post_process_pvalues(selection_estimates_pancancer)
+selection_estimates_pancancer[1:5, c("coefName", "coef", "coef_corrected", "pVal","pVal_corrected")] %>% head()
 ```
 Alternatively, by removing the CNA variable from the formula—while still including the CNA annotations via the annotationGenePath—the model can calculate the selection coefficients separately for each cancer type and each level of CNA. These distinctions will then be displayed in the Cohort column.
 
@@ -134,7 +151,8 @@ selection_estimates_per_cna <- get_selection_estimates_neighbors(
   family = "bayes.poisson",
   simtimes = 50
 ) 
-head(selection_estimates_per_cna)
+selection_estimates_per_cna = post_process_pvalues(selection_estimates_per_cna)
+selection_estimates_per_cna[1:5, c("Cohort", "coefName", "coef", "coef_corrected", "pVal","pVal_corrected")]
 ```
 
 ### Considerations for Different Distribution Models
@@ -150,11 +168,9 @@ mutation_table <- get_neighbors_model_table(
      neighborsWindow = "0.5Mb",
   outlierNeighborsThreshold = 0.2,
   )
-
-
 mutation_table$MutationNumber %>% sum() %>% print()
 ```
 
 ## Conclusion
 
-For more detailed parameter usage and additional functions, consult the **mutmatch** documentation on specific functions, for example `?get_selection_estimates_neighbors`. The flexibility of **mutmatch** allows for extensive analysis tailored to specific research needs.
+For more detailed parameter usage and additional functions, consult the *mutmatch* documentation on specific functions, for example `?get_selection_estimates_neighbors`. The flexibility of *mutmatch* allows for extensive analysis tailored to specific research needs.
