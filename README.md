@@ -59,7 +59,7 @@ selection_estimates <- get_selection_estimates_neighbors(
   outlierNeighborsThreshold = 0.2
 )
 ```
-For further details please follow this [tutorial](http://htmlpreview.github.io/?http://github.com/ebesedina/mutmatch/vignettes/mutmatch.html).
+For further details please follow this [tutorial](https://htmlpreview.github.io/?https://github.com/ebesedina/mutmatch/blob/main/vignettes/mutmatch.html).
 
 ### Estimating Selection Using Low-CADD Regions
 
