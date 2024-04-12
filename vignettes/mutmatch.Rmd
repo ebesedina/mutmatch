@@ -1,0 +1,160 @@
+---
+title: "Using mutmatch for selection estimation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using mutmatch for selection estimation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette demonstrates how to use the mutmatch package for estimating selection pressures and epistasis in somatic cells.
+
+## Introduction
+
+The **mutmatch** package provides tools for analyzing mutation data to estimate selection pressures in cancer genes. In this vignette, we will demonstrate the package's capabilities using example datasets that are included for ease of learning. These datasets feature real mutation data and gene-level copy number alterations from 60 TCGA samples spanning three cancer types: COREAD, LUAD, and SKCM. All provided data is accessible openly, allowing for transparent and reproducible analysis.
+
+## Loading the Package
+
+Load the **mutmatch** package into your R session:
+
+```{r message=FALSE, warning=FALSE}
+library(mutmatch)
+```
+
+## Basic usage
+
+Our primary focus is to demonstrate how to estimate selection pressures acting on specific genes, such as the KRAS gene, by using the provided sample data. Below is a command utilizing multiple parameters within the model:
+
+```{r}
+selection_estimates <- get_selection_estimates_neighbors(
+  hgnc = "KRAS",
+  mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
+  annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
+  annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv", package = "mutmatch"),
+  neighborsWindow = "0.5Mb",
+  outlierNeighborsThreshold = 0.2,
+  formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + Mutation + offset(log(ntAtRisk))",
+  family = "bayes.poisson",
+  simtimes = 50
+)
+```
+### Explanation of Variables in the Model:
+
+- `isTarget`: A binary indicator for whether mutations occur in the gene of interest versus background genes.
+- `CNA`: Adjusts for the impact of copy number alterations on mutation rates.
+- `isTarget:CNA`: Evaluates conditional selection pressures in samples with varying copy number alterations.
+- `Mutation`: Controls for biases introduced by different mutation spectra.
+
+```{r}
+head(selection_estimates)
+```
+Postprocessing is crucial to refine initial estimates (consult [Postprocessing section](https://github.com/ebesedina/mutmatch#postprocessing) or the publication for the explanation):
+
+```{r}
+selection_estimates = post_process_pvalues(selection_estimates)
+selection_estimates[, c("Cohort", "coefName", "coef", "coef_corrected", "pVal","pVal_corrected")] %>% head()
+```
+## Inputs and Default Parameters
+
+In this section, we delve into the details of the input data formats and the default parameters used in the `get_selection_estimates_neighbors` function. Understanding these inputs is crucial for effective use of the **mutmatch** package.
+
+### Mutation Data
+
+The `mutationPath` parameter requires a path to the CSV file containing detailed mutation positions. This file must include several columns:
+
+- `CHROM`: Chromosome number.
+- `POS`: Mutation position on the chromosome.
+- `REF`: Reference nucleotide in normal cells.
+- `ALT`: Altered nucleotide representing the mutation.
+- `Sample`: Identifier for the sample in which the mutation was observed.
+
+It's important to note that the mutation data should correspond to the GRCh37/hg19 reference genome assembly to ensure compatibility with the analysis framework.
+
+```{r}
+mutationData = data.table::fread(system.file("extdata", 
+"example_mutations.csv.gz", package = "mutmatch"))
+head(mutationData)
+```
+### Genomic Annotation
+Each sample in the dataset should be accompanied by relevant genomic annotations, which in this example includes the type of cancer:
+
+```{r}
+genomewide_annotation = data.table::fread(system.file("extdata", 
+"example_genomewide_annotation.csv", package = "mutmatch"))
+head(genomewide_annotation)
+```
+
+### Copy Number Alterations (CNA) Data
+CNA data provides context about gene dosage variations across different samples. This dataset indicates whether there is a normal diploid state (CNA = 0) or a gene loss (CNA = -1). The model leverages this data to compare mutation rates between normal and altered gene copy states:
+
+```{r}
+gene_annotation = data.table::fread(system.file("extdata", 
+"example_gene_annotation.csv.gz", package = "mutmatch"))
+head(gene_annotation)
+```
+### Parameters for Model Specification
+- `neighborsWindow`: Defines the genomic window size around the gene of interest, set to 0.5 Mb by default. This window specifies the range for sampling neighboring genes to establish a background mutation rate.
+- `outlierNeighborsThreshold`: Controls the maximum allowed variability in mutation rates between the gene of interest and its neighbors. The default value of 0.2 permits up to 22% variability (calculated as exp(0.2)-1).
+
+## Adjusting the Model Formula
+You can modify the formula to include different variables based on the study's needs. For instance, adding a Cancer variable allows the model to estimate selection pressures across various cancer types:
+
+```{r message=FALSE}
+selection_estimates_pancancer <- get_selection_estimates_neighbors(
+  hgnc = "KRAS",
+  mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
+  annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
+  annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv", package = "mutmatch"),
+  neighborsWindow = "0.5Mb",
+  outlierNeighborsThreshold = 0.2,
+  formula = "MutationNumber ~ isTarget + CNA + isTarget:CNA + Cancer + Mutation + offset(log(ntAtRisk))",
+  family = "bayes.poisson",
+  simtimes = 50
+) 
+head(selection_estimates_pancancer)
+```
+Alternatively, by removing the CNA variable from the formula—while still including the CNA annotations via the annotationGenePath—the model can calculate the selection coefficients separately for each cancer type and each level of CNA. These distinctions will then be displayed in the Cohort column.
+
+```{r message=FALSE}
+selection_estimates_per_cna <- get_selection_estimates_neighbors(
+  hgnc = "KRAS",
+  mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
+  annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
+  annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv", package = "mutmatch"),
+  neighborsWindow = "0.5Mb",
+  outlierNeighborsThreshold = 0.2,
+  formula = "MutationNumber ~ isTarget + Mutation + offset(log(ntAtRisk))",
+  family = "bayes.poisson",
+  simtimes = 50
+) 
+head(selection_estimates_per_cna)
+```
+
+### Considerations for Different Distribution Models
+
+If the dataset is sufficiently large (e.g., high mutation counts in both the gene of interest and its neighbors), alternative statistical distributions like "poisson" or "negative.binomial" may be used to model mutation counts. However, smaller datasets may not provide reliable estimates under high stratification:
+
+```{r message=FALSE}
+mutation_table <- get_neighbors_model_table(
+    hgnc = "KRAS",
+     mutationsPath = system.file("extdata", "example_mutations.csv.gz", package = "mutmatch"),
+  annotationGenePath = system.file("extdata", "example_gene_annotation.csv.gz", package = "mutmatch"),
+  annotationGenomeWidePath = system.file("extdata", "example_genomewide_annotation.csv", package = "mutmatch"),
+     neighborsWindow = "0.5Mb",
+  outlierNeighborsThreshold = 0.2,
+  )
+
+
+mutation_table$MutationNumber %>% sum() %>% print()
+```
+
+## Conclusion
+
+For more detailed parameter usage and additional functions, consult the **mutmatch** documentation on specific functions, for example `?get_selection_estimates_neighbors`. The flexibility of **mutmatch** allows for extensive analysis tailored to specific research needs.
