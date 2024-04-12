@@ -74,7 +74,7 @@ Postprocessing is essential for refining initial estimates and addressing potent
 
 ```{r}
 selection_estimates = post_process_pvalues(selection_estimates)
-selection_estimates[1:5, c("Cohort", "coefName", "coef", "coef_corrected", "pVal","pVal_corrected")] %>% head()
+selection_estimates[1:5, c("Cohort", "coefName", "coef", "coef_corrected", "pVal","pVal_corrected")]
 ```
 
 ## Inputs and Default Parameters
@@ -135,7 +135,7 @@ selection_estimates_pancancer <- get_selection_estimates_neighbors(
   simtimes = 50
 ) 
 selection_estimates_pancancer = post_process_pvalues(selection_estimates_pancancer)
-selection_estimates_pancancer[1:5, c("coefName", "coef", "coef_corrected", "pVal","pVal_corrected")] %>% head()
+selection_estimates_pancancer[1:5, c("coefName", "coef", "coef_corrected", "pVal","pVal_corrected")]
 ```
 Alternatively, by removing the CNA variable from the formula—while still including the CNA annotations via the annotationGenePath—the model can calculate the selection coefficients separately for each cancer type and each level of CNA. These distinctions will then be displayed in the Cohort column.
 
