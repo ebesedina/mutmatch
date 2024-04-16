@@ -26,6 +26,7 @@ Load the *mutmatch* package into your R session:
 
 ```{r message=FALSE, warning=FALSE}
 library(mutmatch)
+library(data.table)
 ```
 
 ## Basic usage
