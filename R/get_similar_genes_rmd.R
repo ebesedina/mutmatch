@@ -71,7 +71,8 @@ get_similar_genes_rmd <- function(hgnc, outlierNeighborsThreshold) {
     dplyr::filter((GeneName1 == hgnc | GeneName2 == hgnc) &
       abs(logOR) <= outlierNeighborsThreshold &
       GeneName1 != GeneName2) %>%
-    dplyr::pull(GeneID2) %>%
+    dplyr::select(GeneID1, GeneID2) %>%
+    base::unlist() %>%
     base::unique()
 
   return(genes_sim_rmd)
