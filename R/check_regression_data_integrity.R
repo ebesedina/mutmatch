@@ -43,10 +43,13 @@ check_regression_data_integrity <- function(mutation_table,
 
   if (!is.null(interaction_var)) {
     if (length(unique(mutation_table[[interaction_var]])) < 2) {
-      if (all(mutation_table[[interaction_var]]) == 0) {
-        stop(paste0("There is no DNA in the tested region for", interaction_var, "variable, not able to fit the model"))
+      # Convert factor to numeric and check the unique values directly
+      unique_values <- unique(as.numeric(as.character(mutation_table[[interaction_var]])))
+
+      if (all(unique_values == 0)) {
+        stop(paste0("There is no DNA in the tested region for ", interaction_var, " variable, not able to fit the model"))
       } else {
-        stop(paste0("There is no DNA in the control region for", interaction_var, "variable, not able to fit the model"))
+        stop(paste0("There is no DNA in the control region for ", interaction_var, " variable, not able to fit the model"))
       }
     }
     # Check if all combinations of isTarget and interaction_var are present
