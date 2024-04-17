@@ -21,20 +21,17 @@
   # Determine which files need to be loaded
   thresholds_to_load <- available_thresholds[available_thresholds <= ceiling(outlierNeighborsThreshold * 10) / 10]
 
-  # Reusable environment
-  tmp_env <- new.env()
-
   # Use lapply to load data chunks
   loaded_data <- lapply(thresholds_to_load, function(threshold) {
-    file_name <- paste0("RmdGenesSimilarity_max_", threshold, ".rda")
+    file_name <- paste0("RmdGenesSimilarity_max_", threshold, ".rds")  # Updated extension to .rds
     full_path <- system.file("extdata", "RmdGenesSimilarity", file_name, package = "mutmatch")
 
-    # Load the .rda file into the temporary environment
-    load(full_path, envir = tmp_env)
-
-    # Get the data chunk from the temporary environment
-    chunk_name <- ls(envir = tmp_env)[1]
-    tmp_env[[chunk_name]]
+    # Load the .rds file
+    if(file.exists(full_path)) {
+      readRDS(full_path)
+    } else {
+      stop(paste("File does not exist:", full_path))
+    }
   })
 
   # Combine the loaded data chunks
@@ -45,7 +42,6 @@
 
   return(filtered_data)
 }
-
 
 #' Get Similar Genes Based on Rmd (Regional Mutation Density)
 #'
