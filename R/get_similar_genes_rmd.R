@@ -23,12 +23,12 @@
 
   # Use lapply to load data chunks
   loaded_data <- lapply(thresholds_to_load, function(threshold) {
-    file_name <- paste0("RmdGenesSimilarity_max_", threshold, ".rds")  # Updated extension to .rds
+    file_name <- paste0("RmdGenesSimilarity_max_", threshold, ".csv.gz")  # Updated extension to .rds
     full_path <- system.file("extdata", "RmdGenesSimilarity", file_name, package = "mutmatch")
 
     # Load the .rds file
     if(file.exists(full_path)) {
-      readRDS(full_path)
+      fread(full_path)
     } else {
       stop(paste("File does not exist:", full_path))
     }
