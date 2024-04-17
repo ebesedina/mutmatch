@@ -43,6 +43,8 @@ get_gene_neighbors <- function(grGene,
 
   # Handle the case when no neighboring genes are found
   if (base::length(neighbor_genes) == 0) {
+    message("No neighboring genes satisfying the mutation rate similarity criteria were found within the specified window around ", hgnc, ". Expanding search to closest genes.")
+
     # Retrieve all genes with similar mutation rates from the GTF file
     gtf_genes <- mutmatch_gtf_grch37[mutmatch_gtf_grch37$type == "gene" &
       mutmatch_gtf_grch37$gene_id %in% genesSimMutRate &
