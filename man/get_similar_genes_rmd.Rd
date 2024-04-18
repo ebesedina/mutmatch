@@ -23,5 +23,7 @@ to the specified gene based on the \code{logOR} value.
 }
 \examples{
 # Example usage (assuming the function and relevant data exist)
+\dontrun{
 similar_genes <- get_similar_genes_rmd("KRAS", 0.2)
+}
 }

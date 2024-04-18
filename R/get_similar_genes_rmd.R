@@ -15,7 +15,11 @@
 #' \dontrun{
 #' result_data <- .load_and_filter_RmdGenesSimilarity(0.25)
 #' }
-#'
+#' @details
+#' This function uses `data.table::fread()` to read compressed files. `fread()`
+#' requires the `R.utils` package to handle `.gz` files, which is why `R.utils`
+#' is listed as a dependency in this package.
+#' @import R.utils
 .load_and_filter_RmdGenesSimilarity <- function(outlierNeighborsThreshold) {
   # Define the max thresholds for the chunks
   available_thresholds <- seq(0.1, 5.4, by = 0.1)

@@ -19,8 +19,14 @@ This function loads chunks of RmdGenesSimilarity data from RDA files,
 combines them, and then filters the combined data based on an
 outlierNeighborsThreshold value.
 }
+\details{
+This function uses \code{data.table::fread()} to read compressed files. \code{fread()}
+requires the \code{R.utils} package to handle \code{.gz} files, which is why \code{R.utils}
+is listed as a dependency in this package.
+}
 \examples{
 # Example usage (assuming the function and RDA files exist)
-# result_data <- .load_and_filter_RmdGenesSimilarity(0.25)
-
+\dontrun{
+result_data <- .load_and_filter_RmdGenesSimilarity(0.25)
+}
 }
