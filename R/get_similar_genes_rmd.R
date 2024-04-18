@@ -28,7 +28,7 @@
 
     # Load the .rds file
     if(file.exists(full_path)) {
-      fread(full_path)
+      data.table::fread(full_path)
     } else {
       stop(paste("File does not exist:", full_path))
     }
