@@ -21,6 +21,7 @@ Depends:
 LazyData: true
 biocViews:
 Imports: 
+    R.utils,
     data.table,
     magrittr,
     dplyr,
