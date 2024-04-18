@@ -12,7 +12,9 @@
 #'
 #' @examples
 #' # Example usage (assuming the function and RDA files exist)
-#' # result_data <- .load_and_filter_RmdGenesSimilarity(0.25)
+#' \dontrun{
+#' result_data <- .load_and_filter_RmdGenesSimilarity(0.25)
+#' }
 #'
 .load_and_filter_RmdGenesSimilarity <- function(outlierNeighborsThreshold) {
   # Define the max thresholds for the chunks
@@ -56,7 +58,9 @@
 #'
 #' @examples
 #' # Example usage (assuming the function and relevant data exist)
+#' \dontrun{
 #' similar_genes <- get_similar_genes_rmd("KRAS", 0.2)
+#' }
 #' @export
 get_similar_genes_rmd <- function(hgnc, outlierNeighborsThreshold) {
   # Load only the rows relevant to the specified outlierNeighborsThreshold to improve performance
