@@ -1,4 +1,5 @@
 # mutmatch
+[![DOI](https://zenodo.org/badge/689053844.svg)](https://zenodo.org/doi/10.5281/zenodo.11619414)
 
 `mutmatch` is an R package designed to estimate somatic selection for a gene using various methods including neighbors baseline of mutation rates or low-impact mutations estimated with CADD score.
 
